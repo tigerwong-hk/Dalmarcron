@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Compilation output
+/build
+
+# Dotenv files
+.env
+.env.*
+!.env.example
+
+# MacOS
+.DS_Store
+
