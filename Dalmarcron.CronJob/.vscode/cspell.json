@@ -1,0 +1,8 @@
+{
+  // https://github.com/streetsidesoftware/vscode-spell-checker/blob/master/packages/client/README.md#cspelljson
+  "version": "0.2",
+  "words": [
+    //
+  ],
+  "ignorePaths": ["/.vscode/cspell.json", "/package-lock.json"]
+}

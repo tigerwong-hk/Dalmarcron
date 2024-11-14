@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // https://code.visualstudio.com/docs/languages/overview#_can-i-map-additional-file-extensions-to-a-language
+  "files.associations": {
+    "**/.vscode/cspell.json": "jsonc"
+  }
+}
