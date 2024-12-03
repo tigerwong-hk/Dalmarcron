@@ -21,7 +21,7 @@ async function createRedisClient(logger: Logger): Promise<RedisClientType> {
     logger.info("Redis connection ended");
   });
   client.on("error", (err: Error) => {
-    logger.info("Redis connection error: ", err);
+    logger.error("Redis connection error", err);
   });
   client.on("ready", () => {
     logger.info("Redis connection ready");
@@ -63,7 +63,7 @@ const getString =
           continue;
         }
 
-        logger.error("Exception:", JSON.stringify(err));
+        logger.error("Get exception", err instanceof Error ? err : JSON.stringify(err));
         throw err;
       }
     }
@@ -91,7 +91,7 @@ const keyExists =
           continue;
         }
 
-        logger.error("Exception:", JSON.stringify(err));
+        logger.error("Exists exception", err instanceof Error ? err : JSON.stringify(err));
         throw err;
       }
     }
@@ -119,7 +119,7 @@ const removeKey =
           continue;
         }
 
-        logger.error("Exception:", JSON.stringify(err));
+        logger.error("Remove exception", err instanceof Error ? err : JSON.stringify(err));
         throw err;
       }
     }
@@ -150,7 +150,7 @@ const setString =
                 EX: expireSeconds,
               })
             : await client.set(cacheKey, value);
-        logger.info("Set:", result ? result : "<null>");
+        logger.info("Set result", result ? result : "<null>");
         break;
       } catch (err) {
         if (err instanceof SocketClosedUnexpectedlyError) {
@@ -158,7 +158,7 @@ const setString =
           continue;
         }
 
-        logger.error("Exception:", JSON.stringify(err));
+        logger.error("Set exception", err instanceof Error ? err : JSON.stringify(err));
         throw err;
       }
     }

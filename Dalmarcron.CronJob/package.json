@@ -10,6 +10,7 @@
     "lint:fix": "npx eslint --fix .",
     "postbuild": "cd dist && zip -r index.zip index.mjs*",
     "prebuild": "rm -rf dist && npm run lint",
+    "runlocal": "tsx src/runlocal.mts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,11 +32,14 @@
     "esbuild": "^0.24.0",
     "eslint": "^9.14.0",
     "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.14.0"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.10.0",
-    "@redis/client": "^1.6.0"
+    "@badgateway/oauth2-client": "^2.4.2",
+    "@redis/client": "^1.6.0",
+    "dotenv": "^16.4.6"
   }
 }

@@ -3,6 +3,15 @@
   "version": "0.2",
   "words": [
     //
+    "badgateway",
+    "dalmarcron",
+    "dbaeumer",
+    "devcontainers",
+    "esbenp",
+    "humao",
+    "postbuild",
+    "powertools",
+    "runlocal"
   ],
   "ignorePaths": ["/.vscode/cspell.json", "/package-lock.json"]
 }
