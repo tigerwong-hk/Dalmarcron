@@ -1,8 +1,15 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { getParameter } from "@aws-lambda-powertools/parameters/ssm";
 import { createClient, RedisClientType, SocketClosedUnexpectedlyError } from "@redis/client";
 import { ICacheService } from "./iCacheService.mts";
 
-const redisUrl: string = process.env["REDIS_URL"] ?? "";
+const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
+if (ssmParametersPathPrefix.trim().length < 1) {
+  throw new Error("SSM parameters path missing");
+}
+
+const redisUrl: string =
+  (await getParameter(`${ssmParametersPathPrefix}/redis/url`, { decrypt: true })) ?? "";
 if (redisUrl.trim().length < 1) {
   throw new Error("Redis URL undefined");
 }

@@ -1,4 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { getParametersByName } from "@aws-lambda-powertools/parameters/ssm";
+import type { SSMGetParametersByNameOptions } from "@aws-lambda-powertools/parameters/ssm/types";
 import { OAuth2Client, OAuth2Fetch } from "@badgateway/oauth2-client";
 import { IApiService } from "./iApiService.mts";
 
@@ -7,18 +9,37 @@ if (oauth2BaseUri.trim().length < 1) {
   throw new Error("Oauth2 base URI missing");
 }
 
-const oauth2ClientId: string = process.env["OAUTH2_CLIENT_ID"] ?? "";
-if (oauth2ClientId.trim().length < 1) {
-  throw new Error("Oauth2 client ID missing");
-}
-
 const oauth2ClientScope: string = process.env["OAUTH2_CLIENT_SCOPE"] ?? "";
 if (oauth2ClientScope.trim().length < 1) {
   throw new Error("Oauth2 client scope missing");
 }
 const clientScopes: string[] = oauth2ClientScope.split(",");
 
-const oauth2ClientSecret: string = process.env["OAUTH2_CLIENT_SECRET"] ?? "";
+const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
+if (ssmParametersPathPrefix.trim().length < 1) {
+  throw new Error("SSM parameters path missing");
+}
+
+const oauth2ParametersOptions: Record<string, SSMGetParametersByNameOptions> = {
+  [`${ssmParametersPathPrefix}/oauth2/clientId`]: { decrypt: true },
+  [`${ssmParametersPathPrefix}/oauth2/clientSecret`]: { decrypt: true },
+};
+
+const oauth2Parameters: Record<string, string> =
+  await getParametersByName<string>(oauth2ParametersOptions);
+/*
+for (const [oauth2Key, oauth2Value] of Object.entries(oauth2Parameters)) {
+  console.log(`${oauth2Key}: ${oauth2Value}`);
+}
+*/
+
+const oauth2ClientId: string = oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientId`] ?? "";
+if (oauth2ClientId.trim().length < 1) {
+  throw new Error("Oauth2 client ID missing");
+}
+
+const oauth2ClientSecret: string =
+  oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientSecret`] ?? "";
 if (oauth2ClientSecret.trim().length < 1) {
   throw new Error("Oauth2 client secret missing");
 }
