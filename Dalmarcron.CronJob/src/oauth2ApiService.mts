@@ -1,5 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { OAuth2Client, OAuth2Fetch } from "@badgateway/oauth2-client";
+import { IApiService } from "./iApiService.mts";
 
 const oauth2BaseUri: string = process.env["OAUTH2_BASE_URI"] ?? "";
 if (oauth2BaseUri.trim().length < 1) {
@@ -28,7 +29,9 @@ const oauth2Client = new OAuth2Client({
   clientSecret: oauth2ClientSecret,
 });
 
-export const createOauth2ApiService = (logger: Logger): OAuth2Fetch => {
+let oauth2FetchClient: OAuth2Fetch | null;
+
+function createOauth2HttpClient(logger: Logger): OAuth2Fetch {
   return new OAuth2Fetch({
     client: oauth2Client,
     getNewToken: async () => {
@@ -39,4 +42,48 @@ export const createOauth2ApiService = (logger: Logger): OAuth2Fetch => {
     },
     scheduleRefresh: false,
   });
+}
+
+function getOauth2HttpClient(logger: Logger): OAuth2Fetch {
+  if (!oauth2FetchClient) {
+    oauth2FetchClient = createOauth2HttpClient(logger);
+  }
+
+  return oauth2FetchClient;
+}
+
+const fetch =
+  (logger: Logger) =>
+  async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const httpClient: OAuth2Fetch = getOauth2HttpClient(logger);
+
+    try {
+      const response: Response = await httpClient.fetch(input, init);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
+      }
+
+      logger.info("Fetch API response ok", response.ok.toString());
+      logger.info("Fetch API response status", response.status.toString());
+      logger.info("Fetch API response status text", response.statusText);
+      logger.info("Fetch API response type", response.type);
+      logger.info("Fetch API response url", response.url);
+      logger.info("Fetch API response redirected", response.redirected.toString());
+
+      /*
+      const json = await response.json();
+      logger.info("Fetch API response json", JSON.stringify(json));
+      */
+
+      return response;
+    } catch (err) {
+      logger.error("Fetch exception", err instanceof Error ? err : JSON.stringify(err));
+      throw err;
+    }
+  };
+
+export const createOauth2ApiService = (logger: Logger): IApiService => {
+  return {
+    fetch: fetch(logger),
+  };
 };

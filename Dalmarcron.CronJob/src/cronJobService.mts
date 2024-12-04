@@ -1,7 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { OAuth2Fetch } from "@badgateway/oauth2-client";
 import { createOauth2ApiService } from "./oauth2ApiService.mts";
 // import { createRedisCacheService } from "./redisCacheService.mts";
+import { IApiService } from "./iApiService.mts";
 // import { ICacheService } from "./iCacheService.mts";
 import { IJobService } from "./iJobService.mts";
 
@@ -32,12 +32,9 @@ const execute = (logger: Logger) => async (): Promise<void> => {
     throw new Error("API URL missing");
   }
 
-  const apiService: OAuth2Fetch = createOauth2ApiService(logger);
+  const apiService: IApiService = createOauth2ApiService(logger);
 
   try {
-    logger.info("API URL", apiUrl);
-    logger.info("Access token", await apiService.getAccessToken());
-
     const response: Response = await apiService.fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
@@ -50,7 +47,7 @@ const execute = (logger: Logger) => async (): Promise<void> => {
     logger.info("Fetch API response url", response.url);
     logger.info("Fetch API response redirected", response.redirected.toString());
 
-    const json = await response.json();
+    const json: object = (await response.json()) as object;
     logger.info("Fetch API response json", JSON.stringify(json));
   } catch (err) {
     logger.error("Fetch exception", err instanceof Error ? err : JSON.stringify(err));
