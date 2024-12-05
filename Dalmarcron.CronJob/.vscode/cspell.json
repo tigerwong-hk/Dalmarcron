@@ -11,7 +11,8 @@
     "humao",
     "postbuild",
     "powertools",
-    "runlocal"
+    "runlocal",
+    "uuidv4"
   ],
   "ignorePaths": ["/.vscode/cspell.json", "/package-lock.json"]
 }

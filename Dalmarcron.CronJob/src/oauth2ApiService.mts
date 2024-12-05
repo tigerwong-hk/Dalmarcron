@@ -15,6 +15,10 @@ if (oauth2ClientScope.trim().length < 1) {
 }
 const clientScopes: string[] = oauth2ClientScope.split(",");
 
+for (let i = 0; i < clientScopes.length; i++) {
+  console.log(`clientScopes[${i.toString()}]: `, clientScopes[i]);
+}
+
 const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
 if (ssmParametersPathPrefix.trim().length < 1) {
   throw new Error("SSM parameters path prefix missing");
