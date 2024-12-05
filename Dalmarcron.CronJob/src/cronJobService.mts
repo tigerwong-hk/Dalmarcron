@@ -1,9 +1,21 @@
 import { Logger } from "@aws-lambda-powertools/logger";
+import { getParameter } from "@aws-lambda-powertools/parameters/ssm";
 import { createOauth2ApiService } from "./oauth2ApiService.mts";
 // import { createRedisCacheService } from "./redisCacheService.mts";
 import { IApiService } from "./iApiService.mts";
 // import { ICacheService } from "./iCacheService.mts";
 import { IJobService } from "./iJobService.mts";
+
+const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
+if (ssmParametersPathPrefix.trim().length < 1) {
+  throw new Error("SSM parameters path prefix missing");
+}
+
+const apiUrl: string =
+  (await getParameter(`${ssmParametersPathPrefix}/api/url`, { decrypt: true })) ?? "";
+if (apiUrl.trim().length < 1) {
+  throw new Error("API URL missing");
+}
 
 const execute = (logger: Logger) => async (): Promise<void> => {
   /*
@@ -27,10 +39,7 @@ const execute = (logger: Logger) => async (): Promise<void> => {
   logger.info("keyExists", keyExistsAfterDelete.toString());
   */
 
-  const apiUrl: string = process.env["API_URL"] ?? "";
-  if (apiUrl.trim().length < 1) {
-    throw new Error("API URL missing");
-  }
+  logger.info("apiUrl", apiUrl);
 
   const apiService: IApiService = createOauth2ApiService(logger);
 

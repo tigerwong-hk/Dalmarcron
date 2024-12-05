@@ -17,7 +17,7 @@ const clientScopes: string[] = oauth2ClientScope.split(",");
 
 const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
 if (ssmParametersPathPrefix.trim().length < 1) {
-  throw new Error("SSM parameters path missing");
+  throw new Error("SSM parameters path prefix missing");
 }
 
 const oauth2ParametersOptions: Record<string, SSMGetParametersByNameOptions> = {

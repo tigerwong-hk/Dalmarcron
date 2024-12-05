@@ -5,7 +5,7 @@ import { ICacheService } from "./iCacheService.mts";
 
 const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
 if (ssmParametersPathPrefix.trim().length < 1) {
-  throw new Error("SSM parameters path missing");
+  throw new Error("SSM parameters path prefix missing");
 }
 
 const redisUrl: string =
