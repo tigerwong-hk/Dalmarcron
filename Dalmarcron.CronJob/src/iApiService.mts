@@ -1,3 +1,3 @@
 export interface IApiService {
-  fetch(input: RequestInfo, init?: RequestInit): Promise<Response>;
+  send(input: RequestInfo, init?: RequestInit): Promise<Response>;
 }

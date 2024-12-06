@@ -4,59 +4,60 @@ import type { SSMGetParametersByNameOptions } from "@aws-lambda-powertools/param
 import { OAuth2Client, OAuth2Fetch } from "@badgateway/oauth2-client";
 import { IApiService } from "./iApiService.mts";
 
-const oauth2BaseUri: string = process.env["OAUTH2_BASE_URI"] ?? "";
-if (oauth2BaseUri.trim().length < 1) {
-  throw new Error("Oauth2 base URI missing");
-}
-
-const oauth2ClientScope: string = process.env["OAUTH2_CLIENT_SCOPE"] ?? "";
-if (oauth2ClientScope.trim().length < 1) {
-  throw new Error("Oauth2 client scope missing");
-}
-const clientScopes: string[] = oauth2ClientScope.split(",");
-
-for (let i = 0; i < clientScopes.length; i++) {
-  console.log(`clientScopes[${i.toString()}]: `, clientScopes[i]);
-}
-
-const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
-if (ssmParametersPathPrefix.trim().length < 1) {
-  throw new Error("SSM parameters path prefix missing");
-}
-
-const oauth2ParametersOptions: Record<string, SSMGetParametersByNameOptions> = {
-  [`${ssmParametersPathPrefix}/oauth2/clientId`]: { decrypt: true },
-  [`${ssmParametersPathPrefix}/oauth2/clientSecret`]: { decrypt: true },
-};
-
-const oauth2Parameters: Record<string, string> =
-  await getParametersByName<string>(oauth2ParametersOptions);
-/*
-for (const [oauth2Key, oauth2Value] of Object.entries(oauth2Parameters)) {
-  console.log(`${oauth2Key}: ${oauth2Value}`);
-}
-*/
-
-const oauth2ClientId: string = oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientId`] ?? "";
-if (oauth2ClientId.trim().length < 1) {
-  throw new Error("Oauth2 client ID missing");
-}
-
-const oauth2ClientSecret: string =
-  oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientSecret`] ?? "";
-if (oauth2ClientSecret.trim().length < 1) {
-  throw new Error("Oauth2 client secret missing");
-}
-
-const oauth2Client = new OAuth2Client({
-  server: oauth2BaseUri,
-  clientId: oauth2ClientId,
-  clientSecret: oauth2ClientSecret,
-});
-
 let oauth2FetchClient: OAuth2Fetch | null;
 
-function createOauth2HttpClient(logger: Logger): OAuth2Fetch {
+async function createOauth2HttpClient(logger: Logger): Promise<OAuth2Fetch> {
+  const oauth2BaseUri: string = process.env["OAUTH2_BASE_URI"] ?? "";
+  if (oauth2BaseUri.trim().length < 1) {
+    throw new Error("Oauth2 base URI missing");
+  }
+
+  const oauth2ClientScope: string = process.env["OAUTH2_CLIENT_SCOPE"] ?? "";
+  if (oauth2ClientScope.trim().length < 1) {
+    throw new Error("Oauth2 client scope missing");
+  }
+  const clientScopes: string[] = oauth2ClientScope.split(",");
+
+  for (let i = 0; i < clientScopes.length; i++) {
+    console.log(`clientScopes[${i.toString()}]: `, clientScopes[i]);
+  }
+
+  const ssmParametersPathPrefix: string = process.env["SSM_PARAMETERS_PATH_PREFIX"] ?? "";
+  if (ssmParametersPathPrefix.trim().length < 1) {
+    throw new Error("SSM parameters path prefix missing");
+  }
+
+  const oauth2ParametersOptions: Record<string, SSMGetParametersByNameOptions> = {
+    [`${ssmParametersPathPrefix}/oauth2/clientId`]: { decrypt: true },
+    [`${ssmParametersPathPrefix}/oauth2/clientSecret`]: { decrypt: true },
+  };
+
+  const oauth2Parameters: Record<string, string> =
+    await getParametersByName<string>(oauth2ParametersOptions);
+  /*
+  for (const [oauth2Key, oauth2Value] of Object.entries(oauth2Parameters)) {
+    console.log(`${oauth2Key}: ${oauth2Value}`);
+  }
+  */
+
+  const oauth2ClientId: string =
+    oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientId`] ?? "";
+  if (oauth2ClientId.trim().length < 1) {
+    throw new Error("Oauth2 client ID missing");
+  }
+
+  const oauth2ClientSecret: string =
+    oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientSecret`] ?? "";
+  if (oauth2ClientSecret.trim().length < 1) {
+    throw new Error("Oauth2 client secret missing");
+  }
+
+  const oauth2Client = new OAuth2Client({
+    server: oauth2BaseUri,
+    clientId: oauth2ClientId,
+    clientSecret: oauth2ClientSecret,
+  });
+
   return new OAuth2Fetch({
     client: oauth2Client,
     getNewToken: async () => {
@@ -69,18 +70,18 @@ function createOauth2HttpClient(logger: Logger): OAuth2Fetch {
   });
 }
 
-function getOauth2HttpClient(logger: Logger): OAuth2Fetch {
+async function getOauth2HttpClient(logger: Logger): Promise<OAuth2Fetch> {
   if (!oauth2FetchClient) {
-    oauth2FetchClient = createOauth2HttpClient(logger);
+    oauth2FetchClient = await createOauth2HttpClient(logger);
   }
 
   return oauth2FetchClient;
 }
 
-const fetch =
+const send =
   (logger: Logger) =>
   async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
-    const httpClient: OAuth2Fetch = getOauth2HttpClient(logger);
+    const httpClient: OAuth2Fetch = await getOauth2HttpClient(logger);
 
     try {
       const response: Response = await httpClient.fetch(input, init);
@@ -95,11 +96,6 @@ const fetch =
       logger.info("Fetch API response url", response.url);
       logger.info("Fetch API response redirected", response.redirected.toString());
 
-      /*
-      const json = await response.json();
-      logger.info("Fetch API response json", JSON.stringify(json));
-      */
-
       return response;
     } catch (err) {
       logger.error("Fetch exception", err instanceof Error ? err : JSON.stringify(err));
@@ -109,6 +105,6 @@ const fetch =
 
 export const createOauth2ApiService = (logger: Logger): IApiService => {
   return {
-    fetch: fetch(logger),
+    send: send(logger),
   };
 };
