@@ -1,0 +1,30 @@
+{
+    "version": "0.2",
+    "words": [
+        "appsettings",
+        "aspnetcore",
+        "awssdk",
+        "backoffice",
+        "buildtransitive",
+        "cmty",
+        "contentfiles",
+        "dalmarcron",
+        "dalmarkit",
+        "devcontainers",
+        "dotenv",
+        "dtos",
+        "fargate",
+        "npgsql",
+        "proto",
+        "roslynator",
+        "sched",
+        "serilog",
+        "softprops",
+        "swashbuckle"
+    ],
+    "ignorePaths": [
+        "/.devcontainer/devcontainer.json",
+        "/.vscode/launch.json",
+        "/.vscode/tasks.json"
+    ]
+}

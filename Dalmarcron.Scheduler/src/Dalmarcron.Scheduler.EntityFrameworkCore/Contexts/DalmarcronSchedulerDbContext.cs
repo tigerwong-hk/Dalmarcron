@@ -1,0 +1,45 @@
+using Audit.EntityFramework;
+using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
+using Dalmarkit.Common.AuditTrail;
+using Dalmarkit.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Dalmarcron.Scheduler.Core.Constants;
+
+namespace Dalmarcron.Scheduler.EntityFrameworkCore.Contexts;
+
+public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbContext(options)
+{
+    private static readonly EnumToStringConverter<ApiMethod> ApiMethodConverter = new();
+    private static readonly EnumToStringConverter<ApiType> ApiTypeConverter = new();
+
+    public DbSet<ApiLog> ApiLogs { get; set; } = null!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    public DbSet<ScheduledJob> ScheduledJobs { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        _ = modelBuilder.BuildApiLogEntity();
+
+        _ = modelBuilder.BuildApiLogEntity();
+
+        _ = modelBuilder.BuildReadWriteEntity<ScheduledJob>();
+        _ = modelBuilder.Entity<ScheduledJob>()
+            .Property(e => e.ScheduledJobId)
+            .HasDefaultValueSql(ModelBuilderExtensions.DefaultGuidValueSql);
+        _ = modelBuilder.Entity<ScheduledJob>()
+            .Property(e => e.ApiMethod)
+            .HasConversion(ApiMethodConverter)
+            .HasMaxLength(20);
+        _ = modelBuilder.Entity<ScheduledJob>()
+            .Property(e => e.ApiType)
+            .HasConversion(ApiTypeConverter)
+            .HasMaxLength(20);
+        _ = modelBuilder.Entity<ScheduledJob>()
+            .HasIndex(e => e.JobName)
+            .HasFilter(@"""IsDeleted"" = false")
+            .IsUnique();
+
+        base.OnModelCreating(modelBuilder);
+    }
+}

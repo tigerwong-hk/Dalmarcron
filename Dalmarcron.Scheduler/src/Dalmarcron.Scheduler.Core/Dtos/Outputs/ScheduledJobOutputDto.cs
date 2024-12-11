@@ -1,0 +1,20 @@
+using Dalmarcron.Scheduler.Core.Constants;
+
+namespace Dalmarcron.Scheduler.Core.Dtos.Outputs;
+
+public class ScheduledJobOutputDto
+{
+    public Guid ScheduledJobId { get; set; }
+
+    public ApiMethod ApiMethod { get; set; }
+
+    public ApiType ApiType { get; set; }
+
+    public string ApiUrl { get; set; } = null!;
+
+    public string CronExpression { get; set; } = null!;
+
+    public string JobName { get; set; } = null!;
+
+    public DateTime CreatedOn { get; set; }
+}

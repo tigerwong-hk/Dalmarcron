@@ -1,0 +1,541 @@
+############ VARIABLES
+
+######### URLs
+
+@apiUrl = {{API_URL}}
+@apiControllerPrefix = /api/v1/DalmarcronScheduler
+@iamUrl = {{IAM_URL}}
+
+######### Backoffice Client
+
+@backofficeClientId = {{BACKOFFICE_CLIENT_ID}}
+@backofficeClientRedirectUrl = {{BACKOFFICE_CLIENT_REDIRECT_URL}}
+@backofficeClientScope = {{BACKOFFICE_CLIENT_SCOPE}}
+@backofficeClientUrl = {{BACKOFFICE_CLIENT_URL}}
+@backofficeLoginRequestState = {{$guid}}
+
+######### Community Client
+
+@communityClientId = {{COMMUNITY_CLIENT_ID}}
+@communityClientRedirectUrl = {{COMMUNITY_CLIENT_REDIRECT_URL}}
+@communityClientScope = {{COMMUNITY_CLIENT_SCOPE}}
+@communityClientUrl = {{COMMUNITY_CLIENT_URL}}
+@communityLoginRequestState = {{$guid}}
+
+######### Tenant Client
+
+@tenantClientId = {{TENANT_CLIENT_ID}}
+@tenantClientRedirectUrl = {{TENANT_CLIENT_REDIRECT_URL}}
+@tenantClientScope = {{TENANT_CLIENT_SCOPE}}
+@tenantClientUrl = {{TENANT_CLIENT_URL}}
+@tenantLoginRequestState = {{$guid}}
+
+######### Batch Client
+
+@batchClientId = {{BATCH_CLIENT_ID}}
+@batchClientSecret = {{$dotenv BATCH_CLIENT_SECRET}}
+@batchClientScope = {{BATCH_CLIENT_SCOPE}}
+
+@invalidGuid = 00000000-0000-0000-0000-000000000000
+
+######### OAuth2 Endpoints
+
+@oauth2AuthorizationEndpoint = {{iamUrl}}/oauth2/authorize
+@oauth2LogoutEndpoint = {{iamUrl}}/logout
+@oauth2TokenEndpoint = {{iamUrl}}/oauth2/token
+
+######### Access Tokens
+
+@backofficeAdminAccessToken = {{ExchangeForBackofficePortalBackofficeAdmin.response.body.access_token}}
+@tenantAdmin01AccessToken = {{ExchangeForTenantPortalTenantAdmin01.response.body.access_token}}
+@tenantAdmin02AccessToken = {{ExchangeForTenantPortalTenantAdmin02.response.body.access_token}}
+
+@communityUserAccessToken = {{ExchangeForCommunityPortalCommunityUser.response.body.access_token}}
+
+@batchProcessAccessToken = {{LoginForBatchProcess.response.body.access_token}}
+
+######### Refresh Tokens
+
+@backofficeAdminRefreshToken = {{ExchangeForBackofficePortalBackofficeAdmin.response.body.refresh_token}}
+@tenantAdmin01RefreshToken = {{ExchangeForTenantPortalTenantAdmin01.response.body.refresh_token}}
+@tenantAdmin02RefreshToken = {{ExchangeForTenantPortalTenantAdmin02.response.body.refresh_token}}
+@communityUserRefreshToken = {{ExchangeForCommunityPortalCommunityUser.response.body.refresh_token}}
+
+######### Scheduled Job Parameters
+
+@apiHeadersAcceptKey = Accept
+@apiHeadersAcceptValue = */*
+@apiHeadersContentTypeKey = Content-Type
+@apiHeadersContentTypeValue = application/json
+@apiIdempotencyKeyCreate = createRequestId
+@apiJsonBodyCreate =
+@apiMethodCreate = POST
+@apiMethodUpdate = GET
+@apiTypeCreate = OAUTH2
+@apiTypeUpdate = FETCH
+@apiUrlCreate =
+@apiUrlUpdate =
+@cronExpressionCreate = 0/1 * * * ? *
+@cronExpressionUpdate = 0/2 * * * ? *
+@jobNameCreate = Test Job 01
+@jobNameUpdate = Test Job 00001
+@oauth2BaseUriCreate = https://ap-northeast-1k3mi25p53.auth.ap-northeast-1.amazoncognito.com/oauth2
+@oauth2ClientIdCreate = b89s31p411lkqgu9v3cbbv4pi5
+@oauth2ClientScopeCreate = sched-rest/bo.adm.sched
+@oauth2ClientSecretCreate = {{$dotenv OAUTH2_CLIENT_SECRET}}
+
+######### Scheduled Job IDs
+
+@scheduledJobId = {{GetAllScheduledJobListAsBackofficeAdminSuccess.response.body.data.data[0].scheduledJobId}}
+
+############ OAUTH 2 AUTHORIZATION
+
+######### Backoffice Portal
+
+# @name LoginForBackofficePortal
+GET {{oauth2AuthorizationEndpoint}}?client_id={{backofficeClientId}}&response_type=code&redirect_uri={{backofficeClientRedirectUrl}}&scope={{backofficeClientScope}}&state={{backofficeLoginRequestState}}&nonce={{$guid}}&code_challenge_method=S256&code_challenge=
+
+###
+
+# @name LogoutForBackofficePortal
+GET {{oauth2LogoutEndpoint}}?client_id={{backofficeClientId}}&logout_uri={{backofficeClientRedirectUrl}}
+
+###
+
+# @name ExchangeForBackofficePortalBackofficeAdmin
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{backofficeClientUrl}}
+
+grant_type=authorization_code
+&client_id={{backofficeClientId}}
+&redirect_uri={{backofficeClientRedirectUrl}}
+&scope={{backofficeClientScope}}
+&code=
+&code_verifier=
+
+###
+
+# @name RefreshForBackofficePortalBackofficeAdmin
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{backofficeClientUrl}}
+
+grant_type=refresh_token
+&client_id={{backofficeClientId}}
+&refresh_token={{backofficeAdminRefreshToken}}
+
+######### Tenant Portal
+
+# @name LoginForTenantPortal
+GET {{oauth2AuthorizationEndpoint}}?client_id={{tenantClientId}}&response_type=code&redirect_uri={{tenantClientRedirectUrl}}&scope={{tenantClientScope}}&state={{tenantLoginRequestState}}&nonce={{$guid}}&code_challenge_method=S256&code_challenge=
+
+###
+
+# @name LogoutForTenantPortal
+GET {{oauth2LogoutEndpoint}}?client_id={{tenantClientId}}&logout_uri={{tenantClientRedirectUrl}}
+
+###
+
+# @name ExchangeForTenantPortalTenantAdmin01
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{tenantClientUrl}}
+
+grant_type=authorization_code
+&client_id={{tenantClientId}}
+&redirect_uri={{tenantClientRedirectUrl}}
+&scope={{tenantClientScope}}
+&code=
+&code_verifier=
+
+###
+
+# @name ExchangeForTenantPortalTenantAdmin02
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{tenantClientUrl}}
+
+grant_type=authorization_code
+&client_id={{tenantClientId}}
+&redirect_uri={{tenantClientRedirectUrl}}
+&scope={{tenantClientScope}}
+&code=
+&code_verifier=
+
+###
+
+# @name RefreshForTenantPortalTenantAdmin01
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{tenantClientUrl}}
+
+grant_type=refresh_token
+&client_id={{tenantClientId}}
+&refresh_token={{tenantAdmin01RefreshToken}}
+
+###
+
+# @name RefreshForTenantPortalTenantAdmin02
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{tenantClientUrl}}
+
+grant_type=refresh_token
+&client_id={{tenantClientId}}
+&refresh_token={{tenantAdmin02RefreshToken}}
+
+######### Community Portal
+
+# @name LoginForCommunityPortal
+GET {{oauth2AuthorizationEndpoint}}?client_id={{communityClientId}}&response_type=code&redirect_uri={{communityClientRedirectUrl}}&scope={{communityClientScope}}&state={{communityLoginRequestState}}&nonce={{$guid}}&code_challenge_method=S256&code_challenge=
+
+###
+
+# @name LogoutForCommunityPortal
+GET {{oauth2LogoutEndpoint}}?client_id={{communityClientId}}&logout_uri={{communityClientRedirectUrl}}
+
+###
+
+# @name ExchangeForCommunityPortalCommunityUser
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{communityClientUrl}}
+
+grant_type=authorization_code
+&client_id={{communityClientId}}
+&redirect_uri={{communityClientRedirectUrl}}
+&scope={{communityClientScope}}
+&code=
+&code_verifier=
+
+###
+
+# @name RefreshForCommunityPortalCommunityUser
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+Origin: {{communityClientUrl}}
+
+grant_type=refresh_token
+&client_id={{communityClientId}}
+&refresh_token={{communityUserRefreshToken}}
+
+######### Batch Process
+
+# @name LoginForBatchProcess
+POST {{oauth2TokenEndpoint}}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={{batchClientId}}
+&client_secret={{batchClientSecret}}
+&scope={{batchClientScope}}
+
+
+############ APIs
+
+######### Scheduled Job
+
+###### CreateScheduledJob
+
+# @name CreateScheduledJobAsAnonymousUnauthorized
+POST {{apiUrl}}{{apiControllerPrefix}}/CreateScheduledJob
+Content-Type: application/json
+
+{
+  "createRequestId": "{{$guid}}",
+  "apiMethod": "{{apiMethodCreate}}",
+  "apiType": "{{apiTypeCreate}}",
+  "apiUrl": "{{apiUrlCreate}}",
+  "cronExpression": "{{cronExpressionCreate}}",
+  "jobName": "{{jobNameCreate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  },
+  "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
+  "apiJsonBody": {{apiJsonBodyCreate}},
+  "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
+  "oauth2ClientId": "{{oauth2ClientIdCreate}}",
+  "oauth2ClientScopes": [
+    "{{oauth2ClientScopeCreate}}"
+  ],
+  "oauth2ClientSecret": "{{oauth2ClientSecretCreate}}"
+}
+
+###
+
+# @name CreateScheduledJobAsBackofficeAdminSuccess
+POST {{apiUrl}}{{apiControllerPrefix}}/CreateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+{
+  "createRequestId": "{{$guid}}",
+  "apiMethod": "{{apiMethodCreate}}",
+  "apiType": "{{apiTypeCreate}}",
+  "apiUrl": "{{apiUrlCreate}}",
+  "cronExpression": "{{cronExpressionCreate}}",
+  "jobName": "{{jobNameCreate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  },
+  "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
+  "apiJsonBody": {{apiJsonBodyCreate}},
+  "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
+  "oauth2ClientId": "{{oauth2ClientIdCreate}}",
+  "oauth2ClientScopes": [
+    "{{oauth2ClientScopeCreate}}"
+  ],
+  "oauth2ClientSecret": "{{oauth2ClientSecretCreate}}"
+}
+
+###
+
+# @name CreateScheduledJobAsTenantAdmin01Forbidden
+POST {{apiUrl}}{{apiControllerPrefix}}/CreateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+{
+  "createRequestId": "{{$guid}}",
+  "apiMethod": "{{apiMethodCreate}}",
+  "apiType": "{{apiTypeCreate}}",
+  "apiUrl": "{{apiUrlCreate}}",
+  "cronExpression": "{{cronExpressionCreate}}",
+  "jobName": "{{jobNameCreate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  },
+  "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
+  "apiJsonBody": {{apiJsonBodyCreate}},
+  "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
+  "oauth2ClientId": "{{oauth2ClientIdCreate}}",
+  "oauth2ClientScopes": [
+    "{{oauth2ClientScopeCreate}}"
+  ],
+  "oauth2ClientSecret": "{{oauth2ClientSecretCreate}}"
+}
+
+###
+
+# @name CreateScheduledJobAsTenantAdmin02Forbidden
+POST {{apiUrl}}{{apiControllerPrefix}}/CreateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+{
+  "createRequestId": "{{$guid}}",
+  "apiMethod": "{{apiMethodCreate}}",
+  "apiType": "{{apiTypeCreate}}",
+  "apiUrl": "{{apiUrlCreate}}",
+  "cronExpression": "{{cronExpressionCreate}}",
+  "jobName": "{{jobNameCreate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  },
+  "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
+  "apiJsonBody": {{apiJsonBodyCreate}},
+  "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
+  "oauth2ClientId": "{{oauth2ClientIdCreate}}",
+  "oauth2ClientScopes": [
+    "{{oauth2ClientScopeCreate}}"
+  ],
+  "oauth2ClientSecret": "{{oauth2ClientSecretCreate}}"
+}
+
+###### DeleteScheduledJob
+
+# @name DeleteScheduledJobAsAnonymousUnauthorized
+DELETE {{apiUrl}}{{apiControllerPrefix}}/DeleteScheduledJob
+Content-Type: application/json
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name DeleteScheduledJobAsBackofficeAdminSuccess
+DELETE {{apiUrl}}{{apiControllerPrefix}}/DeleteScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name DeleteScheduledJobAsTenantAdmin01Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/DeleteScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name DeleteScheduledJobAsTenantAdmin02Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/DeleteScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###### GetScheduledJobDetail
+
+# @name GetScheduledJobDetailAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobDetail?ScheduledJobId={{scheduledJobId}}
+
+###
+
+# @name GetScheduledJobDetailAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetScheduledJobDetailAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetScheduledJobDetailAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###### GetScheduledJobList
+
+# @name GetAllScheduledJobListAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?PageNumber=1&PageSize=100
+
+###
+
+# @name GetAllScheduledJobListAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?PageNumber=1&PageSize=100
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetAllScheduledJobListATenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetAllScheduledJobListAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###
+
+# @name GetTestScheduledJobListAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?JobName=Test&PageNumber=1&PageSize=100
+
+###
+
+# @name GetTestScheduledJobListAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?JobName=Test&PageNumber=1&PageSize=100
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetTestScheduledJobListATenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?JobName=Test&PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetTestScheduledJobListAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?JobName=Test&PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###### UpdateScheduledJob
+
+# @name UpdateScheduledJobAsAnonymousUnauthorized
+PUT {{apiUrl}}{{apiControllerPrefix}}/UpdateScheduledJob
+Content-Type: application/json
+
+{
+  "scheduledJobId": "{{scheduledJobId}}",
+  "apiMethod": "{{apiMethodUpdate}}",
+  "apiType": "{{apiTypeUpdate}}",
+  "apiUrl": "{{apiUrlUpdate}}",
+  "cronExpression": "{{cronExpressionUpdate}}",
+  "jobName": "{{jobNameUpdate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  }
+}
+
+###
+
+# @name UpdateScheduledJobAsBackofficeAdminSuccess
+PUT {{apiUrl}}{{apiControllerPrefix}}/UpdateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}",
+  "apiMethod": "{{apiMethodUpdate}}",
+  "apiType": "{{apiTypeUpdate}}",
+  "apiUrl": "{{apiUrlUpdate}}",
+  "cronExpression": "{{cronExpressionUpdate}}",
+  "jobName": "{{jobNameUpdate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  }
+}
+
+###
+
+# @name UpdateScheduledJobAsTenantAdmin01Forbidden
+PUT {{apiUrl}}{{apiControllerPrefix}}/UpdateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}",
+  "apiMethod": "{{apiMethodUpdate}}",
+  "apiType": "{{apiTypeUpdate}}",
+  "apiUrl": "{{apiUrlUpdate}}",
+  "cronExpression": "{{cronExpressionUpdate}}",
+  "jobName": "{{jobNameUpdate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  }
+}
+
+###
+
+# @name UpdateScheduledJobAsTenantAdmin02Forbidden
+PUT {{apiUrl}}{{apiControllerPrefix}}/UpdateScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}",
+  "apiMethod": "{{apiMethodUpdate}}",
+  "apiType": "{{apiTypeUpdate}}",
+  "apiUrl": "{{apiUrlUpdate}}",
+  "cronExpression": "{{cronExpressionUpdate}}",
+  "jobName": "{{jobNameUpdate}}",
+  "apiHeaders": {
+    "{{apiHeadersAcceptKey}}": "{{apiHeadersAcceptValue}}",
+    "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
+  }
+}
+
+###

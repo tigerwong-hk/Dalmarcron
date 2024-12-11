@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".", ".", "{A1E75006-98CE-4642-BAA8-3C78DA049962}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalmarcron.Scheduler.Core", "src\Dalmarcron.Scheduler.Core\Dalmarcron.Scheduler.Core.csproj", "{B60D03D9-ED69-468F-B004-65D6ED473B5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalmarcron.Scheduler.EntityFrameworkCore", "src\Dalmarcron.Scheduler.EntityFrameworkCore\Dalmarcron.Scheduler.EntityFrameworkCore.csproj", "{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalmarcron.Scheduler.Application", "src\Dalmarcron.Scheduler.Application\Dalmarcron.Scheduler.Application.csproj", "{18D714EF-0566-40A2-B47C-A16D375B7C56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalmarcron.Scheduler.WebApi", "src\Dalmarcron.Scheduler.WebApi\Dalmarcron.Scheduler.WebApi.csproj", "{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B60D03D9-ED69-468F-B004-65D6ED473B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B60D03D9-ED69-468F-B004-65D6ED473B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B60D03D9-ED69-468F-B004-65D6ED473B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B60D03D9-ED69-468F-B004-65D6ED473B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18D714EF-0566-40A2-B47C-A16D375B7C56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18D714EF-0566-40A2-B47C-A16D375B7C56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18D714EF-0566-40A2-B47C-A16D375B7C56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18D714EF-0566-40A2-B47C-A16D375B7C56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B60D03D9-ED69-468F-B004-65D6ED473B5F} = {A1E75006-98CE-4642-BAA8-3C78DA049962}
+		{DF7B36AB-E42E-4DD5-B620-DB8FB22B3A8D} = {A1E75006-98CE-4642-BAA8-3C78DA049962}
+		{18D714EF-0566-40A2-B47C-A16D375B7C56} = {A1E75006-98CE-4642-BAA8-3C78DA049962}
+		{4D75913F-7AAE-4A0B-95EA-833BB25A5BE6} = {A1E75006-98CE-4642-BAA8-3C78DA049962}
+	EndGlobalSection
+EndGlobal

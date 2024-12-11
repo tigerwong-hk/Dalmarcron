@@ -1,5 +1,12 @@
+# gitignore: https://git-scm.com/docs/gitignore
+# example: https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+
 # Node modules
 node_modules/
+
+# Build results
+bin/
+obj/
 
 # Compilation output
 dist/
@@ -8,6 +15,13 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Logs
+logs/
+MSBuild_Logs
+
+# Images
+*.jpg
 
 # MacOS
 .DS_Store
