@@ -49,10 +49,10 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     Error = table.Column<string>(type: "text", nullable: true),
                     PrimaryKey = table.Column<string>(type: "text", nullable: false),
                     Table = table.Column<string>(type: "text", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now() at time zone 'utc'"),
                     DurationMsec = table.Column<int>(type: "integer", nullable: false),
                     LogDetail = table.Column<string>(type: "jsonb", nullable: false),
-                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now() at time zone 'utc'"),
                     Status = table.Column<bool>(type: "boolean", nullable: false),
                     TraceId = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: true)
@@ -72,12 +72,12 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     ApiUrl = table.Column<string>(type: "text", nullable: false),
                     CronExpression = table.Column<string>(type: "text", nullable: false),
                     JobName = table.Column<string>(type: "text", nullable: false),
-                    ApiHeaders = table.Column<IDictionary<string, string>>(type: "jsonb", nullable: true),
+                    ApiHeaders = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: true),
                     ApiIdempotencyKey = table.Column<string>(type: "text", nullable: true),
                     ApiJsonBody = table.Column<string>(type: "jsonb", nullable: true),
                     Oauth2BaseUri = table.Column<string>(type: "text", nullable: true),
                     Oauth2ClientId = table.Column<string>(type: "text", nullable: true),
-                    Oauth2ClientScopes = table.Column<IEnumerable<string>>(type: "jsonb", nullable: true),
+                    Oauth2ClientScopes = table.Column<List<string>>(type: "jsonb", nullable: true),
                     Oauth2ClientSecret = table.Column<string>(type: "text", nullable: true),
                     ClientId = table.Column<string>(type: "text", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now() at time zone 'utc'"),
@@ -136,6 +136,42 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                 name: "IX_ApiLogs_UserIp",
                 table: "ApiLogs",
                 column: "UserIp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_ChangedValues",
+                table: "AuditLogs",
+                column: "ChangedValues")
+                .Annotation("Npgsql:IndexMethod", "gin");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_CreatedOn",
+                table: "AuditLogs",
+                column: "CreatedOn");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_ModifiedOn",
+                table: "AuditLogs",
+                column: "ModifiedOn");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_PrimaryKey",
+                table: "AuditLogs",
+                column: "PrimaryKey");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_Table_PrimaryKey",
+                table: "AuditLogs",
+                columns: new[] { "Table", "PrimaryKey" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_TraceId",
+                table: "AuditLogs",
+                column: "TraceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_UserId",
+                table: "AuditLogs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScheduledJobs_ClientId",

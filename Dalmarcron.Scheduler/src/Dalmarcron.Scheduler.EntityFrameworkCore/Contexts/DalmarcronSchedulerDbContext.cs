@@ -21,7 +21,7 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
     {
         _ = modelBuilder.BuildApiLogEntity();
 
-        _ = modelBuilder.BuildApiLogEntity();
+        _ = modelBuilder.BuildAuditLogEntity();
 
         _ = modelBuilder.BuildReadWriteEntity<ScheduledJob>();
         _ = modelBuilder.Entity<ScheduledJob>()

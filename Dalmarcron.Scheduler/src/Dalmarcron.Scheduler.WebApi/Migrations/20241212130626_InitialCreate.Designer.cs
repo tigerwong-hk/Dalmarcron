@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dalmarcron.Scheduler.WebApi.Migrations
 {
     [DbContext(typeof(DalmarcronSchedulerDbContext))]
-    [Migration("20241211043234_InitialCreate")]
+    [Migration("20241212130626_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<IDictionary<string, string>>("ApiHeaders")
+                    b.Property<Dictionary<string, string>>("ApiHeaders")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("ApiIdempotencyKey")
@@ -100,7 +100,7 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     b.Property<string>("Oauth2ClientId")
                         .HasColumnType("text");
 
-                    b.Property<IEnumerable<string>>("Oauth2ClientScopes")
+                    b.Property<List<string>>("Oauth2ClientScopes")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("Oauth2ClientSecret")
@@ -222,7 +222,9 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
 
                     b.Property<int>("DurationMsec")
                         .HasColumnType("integer");
@@ -235,7 +237,9 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
 
                     b.Property<string>("PrimaryKey")
                         .IsRequired()
@@ -256,6 +260,22 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChangedValues");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("ChangedValues"), "gin");
+
+                    b.HasIndex("CreatedOn");
+
+                    b.HasIndex("ModifiedOn");
+
+                    b.HasIndex("PrimaryKey");
+
+                    b.HasIndex("TraceId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Table", "PrimaryKey");
 
                     b.ToTable("AuditLogs");
                 });

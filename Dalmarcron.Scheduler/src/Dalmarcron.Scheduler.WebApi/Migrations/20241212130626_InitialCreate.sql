@@ -31,10 +31,10 @@ CREATE TABLE "AuditLogs" (
     "Error" text,
     "PrimaryKey" text NOT NULL,
     "Table" text NOT NULL,
-    "CreatedOn" timestamp with time zone NOT NULL,
+    "CreatedOn" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
     "DurationMsec" integer NOT NULL,
     "LogDetail" jsonb NOT NULL,
-    "ModifiedOn" timestamp with time zone NOT NULL,
+    "ModifiedOn" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
     "Status" boolean NOT NULL,
     "TraceId" text NOT NULL,
     "UserId" text,
@@ -83,6 +83,20 @@ CREATE INDEX "IX_ApiLogs_UserId" ON "ApiLogs" ("UserId");
 
 CREATE INDEX "IX_ApiLogs_UserIp" ON "ApiLogs" ("UserIp");
 
+CREATE INDEX "IX_AuditLogs_ChangedValues" ON "AuditLogs" USING gin ("ChangedValues");
+
+CREATE INDEX "IX_AuditLogs_CreatedOn" ON "AuditLogs" ("CreatedOn");
+
+CREATE INDEX "IX_AuditLogs_ModifiedOn" ON "AuditLogs" ("ModifiedOn");
+
+CREATE INDEX "IX_AuditLogs_PrimaryKey" ON "AuditLogs" ("PrimaryKey");
+
+CREATE INDEX "IX_AuditLogs_Table_PrimaryKey" ON "AuditLogs" ("Table", "PrimaryKey");
+
+CREATE INDEX "IX_AuditLogs_TraceId" ON "AuditLogs" ("TraceId");
+
+CREATE INDEX "IX_AuditLogs_UserId" ON "AuditLogs" ("UserId");
+
 CREATE INDEX "IX_ScheduledJobs_ClientId" ON "ScheduledJobs" ("ClientId");
 
 CREATE INDEX "IX_ScheduledJobs_CreatedOn" ON "ScheduledJobs" ("CreatedOn");
@@ -98,7 +112,7 @@ CREATE INDEX "IX_ScheduledJobs_ModifiedOn" ON "ScheduledJobs" ("ModifiedOn");
 CREATE INDEX "IX_ScheduledJobs_ModifierId" ON "ScheduledJobs" ("ModifierId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20241211043234_InitialCreate', '8.0.11');
+VALUES ('20241212130626_InitialCreate', '8.0.11');
 
 COMMIT;
 

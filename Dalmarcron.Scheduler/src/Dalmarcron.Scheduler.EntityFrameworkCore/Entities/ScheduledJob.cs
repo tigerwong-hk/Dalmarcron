@@ -31,19 +31,19 @@ public class ScheduledJob : ReadWriteEntityBase
     public string JobName { get; set; } = null!;
 
     [Column(TypeName = "jsonb")]
-    public IDictionary<string, string>? ApiHeaders { get; set; }
+    public Dictionary<string, string>? ApiHeaders { get; set; }
 
     public string? ApiIdempotencyKey { get; set; }
 
     [Column(TypeName = "jsonb")]
-    public object? ApiJsonBody { get; set; }
+    public string? ApiJsonBody { get; set; }
 
     public string? Oauth2BaseUri { get; set; }
 
     public string? Oauth2ClientId { get; set; }
 
     [Column(TypeName = "jsonb")]
-    public IEnumerable<string>? Oauth2ClientScopes { get; set; }
+    public List<string>? Oauth2ClientScopes { get; set; }
 
     public string? Oauth2ClientSecret { get; set; }
 }

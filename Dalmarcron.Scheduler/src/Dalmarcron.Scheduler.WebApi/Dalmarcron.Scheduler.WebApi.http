@@ -254,7 +254,7 @@ Content-Type: application/json
     "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
   },
   "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
-  "apiJsonBody": {{apiJsonBodyCreate}},
+  "apiJsonBody": "{{apiJsonBodyCreate}}",
   "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
   "oauth2ClientId": "{{oauth2ClientIdCreate}}",
   "oauth2ClientScopes": [
@@ -282,7 +282,7 @@ Authorization: Bearer {{backofficeAdminAccessToken}}
     "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
   },
   "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
-  "apiJsonBody": {{apiJsonBodyCreate}},
+  "apiJsonBody": "{{apiJsonBodyCreate}}",
   "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
   "oauth2ClientId": "{{oauth2ClientIdCreate}}",
   "oauth2ClientScopes": [
@@ -310,7 +310,7 @@ Authorization: Bearer {{tenantAdmin01AccessToken}}
     "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
   },
   "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
-  "apiJsonBody": {{apiJsonBodyCreate}},
+  "apiJsonBody": "{{apiJsonBodyCreate}}",
   "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
   "oauth2ClientId": "{{oauth2ClientIdCreate}}",
   "oauth2ClientScopes": [
@@ -338,7 +338,7 @@ Authorization: Bearer {{tenantAdmin02AccessToken}}
     "{{apiHeadersContentTypeKey}}": "{{apiHeadersContentTypeValue}}"
   },
   "apiIdempotencyKey": "{{apiIdempotencyKeyCreate}}",
-  "apiJsonBody": {{apiJsonBodyCreate}},
+  "apiJsonBody": "{{apiJsonBodyCreate}}",
   "oauth2BaseUri": "{{oauth2BaseUriCreate}}",
   "oauth2ClientId": "{{oauth2ClientIdCreate}}",
   "oauth2ClientScopes": [

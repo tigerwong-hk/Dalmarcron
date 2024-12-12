@@ -1,4 +1,5 @@
 using Dalmarcron.Scheduler.Core.Constants;
+using Dalmarcron.Scheduler.Core.Validators;
 using Dalmarkit.Common.Errors;
 using Dalmarkit.Common.Validation;
 using System.ComponentModel.DataAnnotations;
@@ -33,7 +34,8 @@ public class ScheduledJobInputDto
     [StringLength(64, MinimumLength = 1, ErrorMessage = ErrorMessages.ModelStateErrors.LengthExceeded)]
     public string? ApiIdempotencyKey { get; set; }
 
-    public object? ApiJsonBody { get; set; }
+    [JsonString(ErrorMessage = ErrorMessages.ModelStateErrors.ValueInvalid)]
+    public string? ApiJsonBody { get; set; }
 
     [StringLength(1024, MinimumLength = 7, ErrorMessage = ErrorMessages.ModelStateErrors.LengthExceeded)]
     [Url(ErrorMessage = ErrorMessages.ModelStateErrors.UrlInvalid)]

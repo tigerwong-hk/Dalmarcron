@@ -25,7 +25,7 @@ public class JsonStringAttribute : ValidationAttribute
 
         try
         {
-            _ = JsonDocument.Parse(valueAsString);
+            using JsonDocument _ = JsonDocument.Parse(valueAsString);
             return true;
         }
         catch (JsonException)
