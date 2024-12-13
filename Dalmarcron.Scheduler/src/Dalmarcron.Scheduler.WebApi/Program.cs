@@ -172,7 +172,7 @@ try
         options.JsonSerializerOptions.Converters.Add(enumConverter);
     });
 
-    _ = builder.Services.AddApplication();
+    _ = builder.Services.AddApplication(builder.Configuration);
 
     _ = builder.Services.AddCors(options =>
     {
