@@ -14,6 +14,7 @@ public class SchedulerOptions
     public string? LambdaS3Key { get; set; }
     public uint LambdaTimeoutSeconds { get; set; }
     public string? SsmParametersPathPrefix { get; set; }
+    public string? SymmetricEncryptionSecretKey { get; set; }
 
     public void Validate()
     {
@@ -23,6 +24,7 @@ public class SchedulerOptions
         _ = Guard.NotNullOrWhiteSpace(LambdaS3Bucket, nameof(LambdaS3Bucket));
         _ = Guard.NotNullOrWhiteSpace(LambdaS3Key, nameof(LambdaS3Key));
         _ = Guard.NotNullOrWhiteSpace(SsmParametersPathPrefix, nameof(SsmParametersPathPrefix));
+        _ = Guard.NotNullOrWhiteSpace(SymmetricEncryptionSecretKey, nameof(SymmetricEncryptionSecretKey));
 
         if (!Regex.IsMatch(LambdaArchitecture!, Core.Constants.LambdaArchitecture.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Core.Constants.LambdaArchitecture.RegexTimeoutIntervalMsec)))
         {
