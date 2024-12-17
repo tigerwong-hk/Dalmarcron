@@ -17,6 +17,42 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
     private readonly AmazonSimpleSystemsManagementClient _systemsManagerClient =
         Guard.NotNull(systemsManagerClient, nameof(systemsManagerClient));
 
+    public async Task DeleteParametersAsync(List<string> names)
+    {
+        if (names.Count < 1)
+        {
+            throw new ArgumentException("No names", nameof(names));
+        }
+
+        if (names.Any(string.IsNullOrWhiteSpace))
+        {
+            throw new ArgumentNullException(nameof(names));
+        }
+
+        if (names.Any(name => name.Length > ParameterNameMaxLength))
+        {
+            throw new ArgumentException($"Length of name exceed {ParameterNameMaxLength}", nameof(names));
+        }
+
+        if (names.Any(name => ParameterNameReservedPrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))))
+        {
+            throw new ArgumentException("Reserved name", nameof(names));
+        }
+
+        if (names.Any(name => !Regex.IsMatch(name, ParameterNameRegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(RegexTimeoutIntervalMsec))))
+        {
+            throw new ArgumentException("Invalid name", nameof(names));
+        }
+
+        DeleteParametersResponse response = await _systemsManagerClient.DeleteParametersAsync(
+            new DeleteParametersRequest { Names = names }
+        );
+        if (response.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous)
+        {
+            throw new HttpRequestException($"Error status for DeleteParameters request: {response.HttpStatusCode}", null, response.HttpStatusCode);
+        }
+    }
+
     public async Task<IDictionary<string, string>> GetParameterAsync(string name)
     {
         _ = Guard.NotNullOrWhiteSpace(name, nameof(name));
@@ -40,7 +76,7 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
             new GetParameterRequest { Name = name, WithDecryption = true }
         );
         return response.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous
-            ? throw new HttpRequestException($"Error status for GetParameter({name}) request: {response.HttpStatusCode}")
+            ? throw new HttpRequestException($"Error status for GetParameter({name}) request: {response.HttpStatusCode}", null, response.HttpStatusCode)
             : ProcessParameters([response.Parameter], name);
     }
 
@@ -88,7 +124,7 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
         return ProcessParameters(parameters, path);
     }
 
-    public async Task SetSecretParameter(string name, string value)
+    public async Task SetSecretParameterAsync(string name, string value)
     {
         _ = Guard.NotNullOrWhiteSpace(name, nameof(name));
         _ = Guard.NotNullOrWhiteSpace(value, nameof(value));
@@ -122,7 +158,7 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
         }
     }
 
-    public async Task SetStringParameter(string name, string value)
+    public async Task SetStringParameterAsync(string name, string value)
     {
         _ = Guard.NotNullOrWhiteSpace(name, nameof(name));
         _ = Guard.NotNullOrWhiteSpace(value, nameof(value));
@@ -152,11 +188,11 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
         );
         if (response.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous)
         {
-            throw new HttpRequestException($"Error status for SetSecureParameter({name}, {value}) request: {response.HttpStatusCode}");
+            throw new HttpRequestException($"Error status for SetSecureParameter({name}, {value}) request: {response.HttpStatusCode}", null, response.HttpStatusCode);
         }
     }
 
-    public async Task UpdateSecretParameter(string name, string value)
+    public async Task UpdateSecretParameterAsync(string name, string value)
     {
         _ = Guard.NotNullOrWhiteSpace(name, nameof(name));
         _ = Guard.NotNullOrWhiteSpace(value, nameof(value));
@@ -186,11 +222,11 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
         );
         if (response.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous)
         {
-            throw new HttpRequestException($"Error status for UpdateSecureParameter({name}, {value}) request: {response.HttpStatusCode}");
+            throw new HttpRequestException($"Error status for UpdateSecureParameter({name}, {value}) request: {response.HttpStatusCode}", null, response.HttpStatusCode);
         }
     }
 
-    public async Task UpdateStringParameter(string name, string value)
+    public async Task UpdateStringParameterAsync(string name, string value)
     {
         _ = Guard.NotNullOrWhiteSpace(name, nameof(name));
         _ = Guard.NotNullOrWhiteSpace(value, nameof(value));
@@ -220,7 +256,7 @@ public class AwsSystemsManagerService(AmazonSimpleSystemsManagementClient system
         );
         if (response.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous)
         {
-            throw new HttpRequestException($"Error status for UpdateSecureParameter({name}, {value}) request: {response.HttpStatusCode}");
+            throw new HttpRequestException($"Error status for UpdateSecureParameter({name}, {value}) request: {response.HttpStatusCode}", null, response.HttpStatusCode);
         }
     }
 

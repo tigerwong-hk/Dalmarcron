@@ -2,10 +2,11 @@ namespace Dalmarcron.Scheduler.Application.Services.AwsServices;
 
 public interface IAppConfigService
 {
+    Task DeleteParametersAsync(List<string> names);
     Task<IDictionary<string, string>> GetParameterAsync(string name);
     Task<IDictionary<string, string>> GetParametersByPathAsync(string path);
-    Task SetSecretParameter(string name, string value);
-    Task SetStringParameter(string name, string value);
-    Task UpdateSecretParameter(string name, string value);
-    Task UpdateStringParameter(string name, string value);
+    Task SetSecretParameterAsync(string name, string value);
+    Task SetStringParameterAsync(string name, string value);
+    Task UpdateSecretParameterAsync(string name, string value);
+    Task UpdateStringParameterAsync(string name, string value);
 }

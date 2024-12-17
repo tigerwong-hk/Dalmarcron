@@ -96,6 +96,17 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
 
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpDelete]
+    public async Task<ActionResult> UnpublishScheduledJobAsync([FromBody] UnpublishScheduledJobInputDto inputDto)
+    {
+        AuditDetail auditDetail = CreateAuditDetail();
+        Result<Guid, ErrorDetail> result = await _dalmarcronSchedulerCommandService.UnpublishScheduledJobAsync(inputDto, auditDetail);
+
+        return ApiResponse(result);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
     [HttpPut]
     public async Task<ActionResult> UpdateScheduledJobAsync([FromBody] UpdateScheduledJobInputDto inputDto)
     {

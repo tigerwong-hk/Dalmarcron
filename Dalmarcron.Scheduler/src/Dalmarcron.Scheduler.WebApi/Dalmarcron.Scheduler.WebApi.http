@@ -525,6 +525,49 @@ Authorization: Bearer {{tenantAdmin02AccessToken}}
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
+###### UnpublishScheduledJob
+
+# @name UnpublishScheduledJobAsAnonymousUnauthorized
+DELETE {{apiUrl}}{{apiControllerPrefix}}/UnpublishScheduledJob
+Content-Type: application/json
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name UnpublishScheduledJobAsBackofficeAdminSuccess
+DELETE {{apiUrl}}{{apiControllerPrefix}}/UnpublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name UnpublishScheduledJobAsTenantAdmin01Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/UnpublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name UnpublishScheduledJobAsTenantAdmin02Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/UnpublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
 ###### UpdateScheduledJob
 
 # @name UpdateScheduledJobAsAnonymousUnauthorized

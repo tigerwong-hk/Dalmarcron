@@ -98,28 +98,69 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
                 opts.Items[MapperItemKeys.SymmetricEncryptionSecretKey] = _schedulerOptions.SymmetricEncryptionSecretKey
         );
 
-        await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}", outputDto.ApiUrl);
+        await _awsSystemsManagerService.SetSecretParameterAsync($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}", outputDto.ApiUrl);
 
         if ((outputDto.ApiHeaders?.Count ?? 0) > 0)
         {
             string apiHeadersJsonString = JsonSerializer.Serialize(outputDto.ApiHeaders);
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiHeaders}", apiHeadersJsonString);
+            await _awsSystemsManagerService.SetSecretParameterAsync($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiHeaders}", apiHeadersJsonString);
         }
 
         if (!string.IsNullOrWhiteSpace(outputDto.ApiJsonBody))
         {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiJsonBody}", outputDto.ApiJsonBody);
+            await _awsSystemsManagerService.SetSecretParameterAsync($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiJsonBody}", outputDto.ApiJsonBody);
         }
 
         if (!string.IsNullOrWhiteSpace(outputDto.Oauth2ClientId))
         {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientId}", outputDto.Oauth2ClientId);
+            await _awsSystemsManagerService.SetSecretParameterAsync($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientId}", outputDto.Oauth2ClientId);
         }
 
         if (!string.IsNullOrWhiteSpace(outputDto.Oauth2ClientSecret))
         {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientSecret}", outputDto.Oauth2ClientSecret);
+            await _awsSystemsManagerService.SetSecretParameterAsync($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientSecret}", outputDto.Oauth2ClientSecret);
         }
+
+        return Ok(scheduledJob.ScheduledJobId);
+    }
+
+    public async Task<Result<Guid, ErrorDetail>> UnpublishScheduledJobAsync(UnpublishScheduledJobInputDto inputDto,
+        AuditDetail auditDetail,
+        CancellationToken cancellationToken = default)
+    {
+        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(
+            inputDto.ScheduledJobId,
+            false,
+            cancellationToken
+        );
+        if (scheduledJob == null)
+        {
+            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+        }
+
+        List<string> deleteParameterNames = [$"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}"];
+
+        if (!string.IsNullOrWhiteSpace(scheduledJob.ApiHeaders))
+        {
+            deleteParameterNames.Add($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiHeaders}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(scheduledJob.ApiJsonBody))
+        {
+            deleteParameterNames.Add($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiJsonBody}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(scheduledJob.Oauth2ClientId))
+        {
+            deleteParameterNames.Add($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientId}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(scheduledJob.Oauth2ClientSecret))
+        {
+            deleteParameterNames.Add($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientSecret}");
+        }
+
+        await _awsSystemsManagerService.DeleteParametersAsync(deleteParameterNames);
 
         return Ok(scheduledJob.ScheduledJobId);
     }

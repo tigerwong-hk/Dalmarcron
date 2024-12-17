@@ -19,6 +19,10 @@ public interface IDalmarcronSchedulerCommandService
         AuditDetail auditDetail,
         CancellationToken cancellationToken = default);
 
+    Task<Result<Guid, ErrorDetail>> UnpublishScheduledJobAsync(UnpublishScheduledJobInputDto inputDto,
+        AuditDetail auditDetail,
+        CancellationToken cancellationToken = default);
+
     Task<Result<Guid, ErrorDetail>> UpdateScheduledJobAsync(UpdateScheduledJobInputDto inputDto,
         AuditDetail auditDetail,
         CancellationToken cancellationToken = default);
