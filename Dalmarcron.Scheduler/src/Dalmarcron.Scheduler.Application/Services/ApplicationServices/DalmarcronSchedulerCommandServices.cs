@@ -49,6 +49,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
             opts =>
                 opts.Items[MapperItemKeys.SymmetricEncryptionSecretKey] = _schedulerOptions.SymmetricEncryptionSecretKey
         );
+        scheduledJob.PublicationState = PublicationState.UNPUBLISHED;
         scheduledJob.Validate();
 
         _ = await _scheduledJobDataService.CreateAsync(scheduledJob, auditDetail, cancellationToken);
@@ -68,7 +69,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         );
         if (scheduledJob == null)
         {
-            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<Guid>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
         scheduledJob.IsDeleted = true;
@@ -89,7 +90,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         );
         if (scheduledJob == null)
         {
-            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<Guid>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
         ScheduledJobSecretsOutputDto outputDto = _mapper.Map<ScheduledJobSecretsOutputDto>(
@@ -135,7 +136,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         );
         if (scheduledJob == null)
         {
-            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<Guid>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
         List<string> deleteParameterNames = [$"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}"];
@@ -176,7 +177,11 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         );
         if (scheduledJob == null)
         {
-            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<Guid>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
+        }
+        if (scheduledJob.PublicationState != PublicationState.UNPUBLISHED)
+        {
+            return Error<Guid>(ErrorTypes.BadRequestDetails, $"Must unpublish ScheduledJob: {inputDto.ScheduledJobId}");
         }
 
         scheduledJob = _mapper.Map(

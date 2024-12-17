@@ -72,6 +72,7 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     ApiUrl = table.Column<string>(type: "text", nullable: false),
                     CronExpression = table.Column<string>(type: "text", nullable: false),
                     JobName = table.Column<string>(type: "text", nullable: false),
+                    PublicationState = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     ApiHeaders = table.Column<string>(type: "text", nullable: true),
                     ApiIdempotencyKey = table.Column<string>(type: "text", nullable: true),
                     ApiJsonBody = table.Column<string>(type: "text", nullable: true),

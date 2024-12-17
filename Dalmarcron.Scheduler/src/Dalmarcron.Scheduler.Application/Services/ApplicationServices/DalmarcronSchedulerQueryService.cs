@@ -38,7 +38,7 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
         ScheduledJob? scheduledJob = await _scheduledJobDataService.GetScheduledJobDetailAsync(inputDto.ScheduledJobId, cancellationToken);
         if (scheduledJob == null)
         {
-            return Error<ScheduledJobDetailOutputDto>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<ScheduledJobDetailOutputDto>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
         ScheduledJobDetailOutputDto output = _mapper.Map<ScheduledJobDetailOutputDto>(scheduledJob);
@@ -59,7 +59,7 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
         ScheduledJob? scheduledJob = await _scheduledJobDataService.GetScheduledJobDetailAsync(inputDto.ScheduledJobId, cancellationToken);
         if (scheduledJob == null)
         {
-            return Error<ScheduledJobSecretsOutputDto>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+            return Error<ScheduledJobSecretsOutputDto>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
         ScheduledJobSecretsOutputDto output = _mapper.Map<ScheduledJobSecretsOutputDto>(

@@ -12,6 +12,7 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
 {
     private static readonly EnumToStringConverter<ApiMethod> ApiMethodConverter = new();
     private static readonly EnumToStringConverter<ApiType> ApiTypeConverter = new();
+    private static readonly EnumToStringConverter<PublicationState> PublicationStateConverter = new();
 
     public DbSet<ApiLog> ApiLogs { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
@@ -34,6 +35,10 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
         _ = modelBuilder.Entity<ScheduledJob>()
             .Property(e => e.ApiType)
             .HasConversion(ApiTypeConverter)
+            .HasMaxLength(20);
+        _ = modelBuilder.Entity<ScheduledJob>()
+            .Property(e => e.PublicationState)
+            .HasConversion(PublicationStateConverter)
             .HasMaxLength(20);
         _ = modelBuilder.Entity<ScheduledJob>()
             .HasIndex(e => e.JobName)

@@ -103,6 +103,11 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     b.Property<string>("Oauth2ClientSecret")
                         .HasColumnType("text");
 
+                    b.Property<string>("PublicationState")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.HasKey("ScheduledJobId");
 
                     b.HasIndex("ClientId");

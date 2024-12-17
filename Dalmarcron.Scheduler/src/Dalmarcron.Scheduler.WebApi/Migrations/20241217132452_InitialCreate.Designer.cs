@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dalmarcron.Scheduler.WebApi.Migrations
 {
     [DbContext(typeof(DalmarcronSchedulerDbContext))]
-    [Migration("20241216132335_InitialCreate")]
+    [Migration("20241217132452_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -105,6 +105,11 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
 
                     b.Property<string>("Oauth2ClientSecret")
                         .HasColumnType("text");
+
+                    b.Property<string>("PublicationState")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("ScheduledJobId");
 

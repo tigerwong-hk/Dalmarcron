@@ -14,5 +14,7 @@ public class ScheduledJobOutputDto
 
     public string JobName { get; set; } = null!;
 
+    public PublicationState PublicationState { get; set; }
+
     public DateTime CreatedOn { get; set; }
 }

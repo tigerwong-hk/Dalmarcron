@@ -31,6 +31,10 @@ public class ScheduledJob : ReadWriteEntityBase
     [Required]
     public string JobName { get; set; } = null!;
 
+    [Required]
+    [MaxLength(20)]
+    public PublicationState PublicationState { get; set; }
+
     public string? ApiHeaders { get; set; }
 
     public string? ApiIdempotencyKey { get; set; }
