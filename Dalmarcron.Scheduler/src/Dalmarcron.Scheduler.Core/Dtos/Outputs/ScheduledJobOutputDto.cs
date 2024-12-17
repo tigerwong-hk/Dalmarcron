@@ -10,8 +10,6 @@ public class ScheduledJobOutputDto
 
     public ApiType ApiType { get; set; }
 
-    public string ApiUrl { get; set; } = null!;
-
     public string CronExpression { get; set; } = null!;
 
     public string JobName { get; set; } = null!;

@@ -48,9 +48,9 @@ CREATE TABLE "ScheduledJobs" (
     "ApiUrl" text NOT NULL,
     "CronExpression" text NOT NULL,
     "JobName" text NOT NULL,
-    "ApiHeaders" jsonb,
+    "ApiHeaders" text,
     "ApiIdempotencyKey" text,
-    "ApiJsonBody" jsonb,
+    "ApiJsonBody" text,
     "Oauth2BaseUri" text,
     "Oauth2ClientId" text,
     "Oauth2ClientScopes" jsonb,
@@ -112,7 +112,7 @@ CREATE INDEX "IX_ScheduledJobs_ModifiedOn" ON "ScheduledJobs" ("ModifiedOn");
 CREATE INDEX "IX_ScheduledJobs_ModifierId" ON "ScheduledJobs" ("ModifierId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20241212130626_InitialCreate', '8.0.11');
+VALUES ('20241216132335_InitialCreate', '8.0.11');
 
 COMMIT;
 

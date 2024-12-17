@@ -1,0 +1,147 @@
+using System.Text.Json;
+using AutoMapper;
+using Dalmarcron.Scheduler.Core.Cryptography;
+using Dalmarcron.Scheduler.Core.Dtos.Inputs;
+using Dalmarcron.Scheduler.Core.Dtos.Outputs;
+using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
+using Dalmarkit.EntityFrameworkCore.Mappers;
+
+namespace Dalmarcron.Scheduler.Application.Mappers;
+
+public class MapperConfigurations : MapperConfigurationBase
+{
+    protected override void DtoToDtoMappingConfigure(IMapperConfigurationExpression config)
+    {
+    }
+
+    protected override void DtoToEntityMappingConfigure(IMapperConfigurationExpression config)
+    {
+        _ = config.CreateMap<CreateScheduledJobInputDto, ScheduledJob>()
+            .ForMember(d => d.ApiUrl, opt => opt.MapFrom((src, _, _, context) =>
+                AuthenticatedEncryption.Encrypt(
+                    src.ApiUrl,
+                    (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                )
+            ))
+            .ForMember(d => d.ApiHeaders, opt => opt.MapFrom((src, _, _, context) =>
+                (src.ApiHeaders?.Count ?? 0) > 0
+                    ? AuthenticatedEncryption.Encrypt(
+                        JsonSerializer.Serialize(src.ApiHeaders),
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+                    : null
+            ))
+            .ForMember(d => d.ApiJsonBody, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.ApiJsonBody)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.ApiJsonBody,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientId, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientId)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.Oauth2ClientId,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientSecret, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientSecret)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.Oauth2ClientSecret,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ));
+
+        _ = config.CreateMap<UpdateScheduledJobInputDto, ScheduledJob>()
+            .ForMember(d => d.ApiUrl, opt => opt.MapFrom((src, _, _, context) =>
+                AuthenticatedEncryption.Encrypt(
+                    src.ApiUrl,
+                    (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                )
+            ))
+            .ForMember(d => d.ApiHeaders, opt => opt.MapFrom((src, _, _, context) =>
+                (src.ApiHeaders?.Count ?? 0) > 0
+                    ? AuthenticatedEncryption.Encrypt(
+                        JsonSerializer.Serialize(src.ApiHeaders),
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+                    : null
+            ))
+            .ForMember(d => d.ApiJsonBody, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.ApiJsonBody)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.ApiJsonBody,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientId, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientId)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.Oauth2ClientId,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientSecret, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientSecret)
+                    ? null
+                    : AuthenticatedEncryption.Encrypt(
+                        src.Oauth2ClientSecret,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ));
+    }
+
+    protected override void EntityToDtoMappingConfigure(IMapperConfigurationExpression config)
+    {
+        _ = config.CreateMap<ScheduledJob, ScheduledJobOutputDto>();
+        _ = config.CreateMap<ScheduledJob, ScheduledJobDetailOutputDto>();
+
+        _ = config.CreateMap<ScheduledJob, ScheduledJobSecretsOutputDto>()
+            .ForMember(d => d.ApiUrl, opt => opt.MapFrom((src, _, _, context) =>
+                AuthenticatedEncryption.Decrypt(
+                    src.ApiUrl,
+                    (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                )
+            ))
+            .ForMember(d => d.ApiHeaders, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.ApiHeaders)
+                    ? null
+                    : JsonSerializer.Deserialize<IDictionary<string, string>>(
+                        AuthenticatedEncryption.Decrypt(
+                            src.ApiHeaders,
+                            (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                        )
+                    )
+            ))
+            .ForMember(d => d.ApiJsonBody, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.ApiJsonBody)
+                    ? null
+                    : AuthenticatedEncryption.Decrypt(
+                        src.ApiJsonBody,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientId, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientId)
+                    ? null
+                    : AuthenticatedEncryption.Decrypt(
+                        src.Oauth2ClientId,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ))
+            .ForMember(d => d.Oauth2ClientSecret, opt => opt.MapFrom((src, _, _, context) =>
+                string.IsNullOrWhiteSpace(src.Oauth2ClientSecret)
+                    ? null
+                    : AuthenticatedEncryption.Decrypt(
+                        src.Oauth2ClientSecret,
+                        (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
+                    )
+            ));
+    }
+}

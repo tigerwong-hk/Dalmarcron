@@ -1,6 +1,6 @@
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SimpleSystemsManagement;
-using Dalmarcron.Scheduler.Application.Mapping;
+using Dalmarcron.Scheduler.Application.Mappers;
 using Dalmarcron.Scheduler.Application.Services.ApplicationServices;
 using Dalmarcron.Scheduler.Application.Services.AwsServices;
 using Dalmarcron.Scheduler.Application.Services.DataServices;

@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dalmarcron.Scheduler.WebApi.Migrations
 {
     [DbContext(typeof(DalmarcronSchedulerDbContext))]
-    [Migration("20241212130626_InitialCreate")]
+    [Migration("20241216132335_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,14 +33,14 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<Dictionary<string, string>>("ApiHeaders")
-                        .HasColumnType("jsonb");
+                    b.Property<string>("ApiHeaders")
+                        .HasColumnType("text");
 
                     b.Property<string>("ApiIdempotencyKey")
                         .HasColumnType("text");
 
                     b.Property<string>("ApiJsonBody")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<string>("ApiMethod")
                         .IsRequired()

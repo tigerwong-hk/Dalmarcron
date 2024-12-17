@@ -1,10 +1,11 @@
-using System.Text.Json;
 using AutoMapper;
+using Dalmarcron.Scheduler.Application.Mappers;
 using Dalmarcron.Scheduler.Application.Options;
 using Dalmarcron.Scheduler.Application.Services.AwsServices;
 using Dalmarcron.Scheduler.Application.Services.DataServices;
 using Dalmarcron.Scheduler.Core.Constants;
 using Dalmarcron.Scheduler.Core.Dtos.Inputs;
+using Dalmarcron.Scheduler.Core.Dtos.Outputs;
 using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
 using Dalmarkit.Common.Api.Responses;
 using Dalmarkit.Common.AuditTrail;
@@ -12,6 +13,7 @@ using Dalmarkit.Common.Errors;
 using Dalmarkit.Common.Validation;
 using Dalmarkit.EntityFrameworkCore.Services.ApplicationServices;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Dalmarcron.Scheduler.Application.Services.ApplicationServices;
 
@@ -22,7 +24,8 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
     private readonly IScheduledJobDataService _scheduledJobDataService;
     private readonly IAwsSystemsManagerService _awsSystemsManagerService;
 
-    public DalmarcronSchedulerCommandService(IMapper mapper,
+    public DalmarcronSchedulerCommandService(
+        IMapper mapper,
         IOptions<SchedulerOptions> schedulerOptions,
         IScheduledJobDataService scheduledJobDataService,
         IAwsSystemsManagerService awsSystemsManagerService) : base(mapper)
@@ -41,31 +44,12 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         AuditDetail auditDetail,
         CancellationToken cancellationToken = default)
     {
-        ScheduledJob scheduledJob = _mapper.Map<ScheduledJob>(inputDto);
-        scheduledJob.ScheduledJobId = Guid.NewGuid();
-
-        await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}", inputDto.ApiUrl);
-
-        if ((inputDto.ApiHeaders?.Count ?? 0) > 0)
-        {
-            string apiHeadersJsonString = JsonSerializer.Serialize(inputDto.ApiHeaders);
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiHeaders}", apiHeadersJsonString);
-        }
-
-        if (!string.IsNullOrWhiteSpace(inputDto.ApiJsonBody))
-        {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.ApiJsonBody}", inputDto.ApiJsonBody);
-        }
-
-        if (!string.IsNullOrWhiteSpace(inputDto.Oauth2ClientId))
-        {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientId}", inputDto.Oauth2ClientId);
-        }
-
-        if (!string.IsNullOrWhiteSpace(inputDto.Oauth2ClientSecret))
-        {
-            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{scheduledJob.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientSecret}", inputDto.Oauth2ClientSecret);
-        }
+        ScheduledJob scheduledJob = _mapper.Map<ScheduledJob>(
+            inputDto,
+            opts =>
+                opts.Items[MapperItemKeys.SymmetricEncryptionSecretKey] = _schedulerOptions.SymmetricEncryptionSecretKey
+        );
+        scheduledJob.Validate();
 
         _ = await _scheduledJobDataService.CreateAsync(scheduledJob, auditDetail, cancellationToken);
         _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
@@ -77,7 +61,11 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         AuditDetail auditDetail,
         CancellationToken cancellationToken = default)
     {
-        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(inputDto.ScheduledJobId, false, cancellationToken);
+        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(
+            inputDto.ScheduledJobId,
+            false,
+            cancellationToken
+        );
         if (scheduledJob == null)
         {
             return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
@@ -90,17 +78,74 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         return Ok(scheduledJob.ScheduledJobId);
     }
 
-    public async Task<Result<Guid, ErrorDetail>> UpdateScheduledJobAsync(UpdateScheduledJobInputDto inputDto,
+    public async Task<Result<Guid, ErrorDetail>> PublishScheduledJobAsync(PublishScheduledJobInputDto inputDto,
         AuditDetail auditDetail,
         CancellationToken cancellationToken = default)
     {
-        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(inputDto.ScheduledJobId, false, cancellationToken);
+        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(
+            inputDto.ScheduledJobId,
+            false,
+            cancellationToken
+        );
         if (scheduledJob == null)
         {
             return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
         }
 
-        scheduledJob = _mapper.Map(inputDto, scheduledJob);
+        ScheduledJobSecretsOutputDto outputDto = _mapper.Map<ScheduledJobSecretsOutputDto>(
+            scheduledJob,
+            opts =>
+                opts.Items[MapperItemKeys.SymmetricEncryptionSecretKey] = _schedulerOptions.SymmetricEncryptionSecretKey
+        );
+
+        await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiUrl}", outputDto.ApiUrl);
+
+        if ((outputDto.ApiHeaders?.Count ?? 0) > 0)
+        {
+            string apiHeadersJsonString = JsonSerializer.Serialize(outputDto.ApiHeaders);
+            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiHeaders}", apiHeadersJsonString);
+        }
+
+        if (!string.IsNullOrWhiteSpace(outputDto.ApiJsonBody))
+        {
+            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.ApiJsonBody}", outputDto.ApiJsonBody);
+        }
+
+        if (!string.IsNullOrWhiteSpace(outputDto.Oauth2ClientId))
+        {
+            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientId}", outputDto.Oauth2ClientId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(outputDto.Oauth2ClientSecret))
+        {
+            await _awsSystemsManagerService.SetSecretParameter($"{_schedulerOptions.SsmParametersPathPrefix}/{outputDto.ScheduledJobId}/{ScheduledJobParameterKey.Oauth2ClientSecret}", outputDto.Oauth2ClientSecret);
+        }
+
+        return Ok(scheduledJob.ScheduledJobId);
+    }
+
+    public async Task<Result<Guid, ErrorDetail>> UpdateScheduledJobAsync(UpdateScheduledJobInputDto inputDto,
+        AuditDetail auditDetail,
+        CancellationToken cancellationToken = default)
+    {
+        ScheduledJob? scheduledJob = await _scheduledJobDataService.FindEntityIdAsync(
+            inputDto.ScheduledJobId,
+            false,
+            cancellationToken
+        );
+        if (scheduledJob == null)
+        {
+            return Error<Guid>(ErrorTypes.ResourceNotFound, "ScheduledJob", inputDto.ScheduledJobId);
+        }
+
+        scheduledJob = _mapper.Map(
+            inputDto,
+            scheduledJob,
+            opts =>
+                opts.Items[MapperItemKeys.SymmetricEncryptionSecretKey] = _schedulerOptions.SymmetricEncryptionSecretKey
+        );
+        scheduledJob.Validate();
+
         _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
         _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
 

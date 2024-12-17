@@ -459,6 +459,72 @@ Authorization: Bearer {{tenantAdmin01AccessToken}}
 GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobList?JobName=Test&PageNumber=1&PageSize=100
 Authorization: Bearer {{tenantAdmin02AccessToken}}
 
+###### GetScheduledJobSecrets
+
+# @name GetScheduledJobSecretsAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobSecrets?ScheduledJobId={{scheduledJobId}}
+
+###
+
+# @name GetScheduledJobSecretsAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobSecrets?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetScheduledJobSecretsAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobSecrets?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetScheduledJobSecretsAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetScheduledJobSecrets?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###### PublishScheduledJob
+
+# @name PublishScheduledJobAsAnonymousUnauthorized
+DELETE {{apiUrl}}{{apiControllerPrefix}}/PublishScheduledJob
+Content-Type: application/json
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name PublishScheduledJobAsBackofficeAdminSuccess
+DELETE {{apiUrl}}{{apiControllerPrefix}}/PublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name PublishScheduledJobAsTenantAdmin01Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/PublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
+###
+
+# @name PublishScheduledJobAsTenantAdmin02Forbidden
+DELETE {{apiUrl}}{{apiControllerPrefix}}/PublishScheduledJob
+Content-Type: application/json
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+{
+  "scheduledJobId": "{{scheduledJobId}}"
+}
+
 ###### UpdateScheduledJob
 
 # @name UpdateScheduledJobAsAnonymousUnauthorized
