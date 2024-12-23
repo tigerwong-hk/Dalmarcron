@@ -1,8 +1,8 @@
-using System.Net;
-using System.Text.RegularExpressions;
 using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using Dalmarkit.Common.Validation;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Dalmarcron.Scheduler.Application.Services.AwsServices;
 

@@ -390,6 +390,29 @@ Authorization: Bearer {{tenantAdmin02AccessToken}}
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
+###### GetPublishedJobDetail
+
+# @name GetPublishedJobDetailAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetPublishedJobDetail?ScheduledJobId={{scheduledJobId}}
+
+###
+
+# @name GetPublishedJobDetailAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetPublishedJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetPublishedJobDetailAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetPublishedJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetPublishedJobDetailAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetPublishedJobDetail?ScheduledJobId={{scheduledJobId}}
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
 ###### GetScheduledJobDetail
 
 # @name GetScheduledJobDetailAsAnonymousUnauthorized

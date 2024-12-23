@@ -1,8 +1,10 @@
 namespace Dalmarcron.Scheduler.Core.Constants;
 public enum PublicationState
 {
-    PendingPublish = 1000,
-    PendingUnpublish = 2000,
-    Published = 3000,
-    Unpublished = 4000,
+    ErrorPublish = 1000,
+    ErrorUnpublish = 2000,
+    PendingPublish = 3000,
+    PendingUnpublish = 4000,
+    Published = 5000,
+    Unpublished = 6000,
 }

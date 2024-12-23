@@ -18,6 +18,7 @@
         "encryptor",
         "fargate",
         "npgsql",
+        "paginators",
         "proto",
         "roslynator",
         "sched",

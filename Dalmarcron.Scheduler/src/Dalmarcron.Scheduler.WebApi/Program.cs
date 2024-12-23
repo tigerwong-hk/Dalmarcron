@@ -18,13 +18,13 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using Serilog;
 using System.Globalization;
 using System.Net;
+using System.Numerics;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using System.Numerics;
-using Npgsql;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)

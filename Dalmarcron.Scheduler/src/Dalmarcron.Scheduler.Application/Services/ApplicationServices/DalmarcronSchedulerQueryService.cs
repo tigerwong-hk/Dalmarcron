@@ -1,14 +1,16 @@
 using AutoMapper;
-using Dalmarkit.Common.Api.Responses;
-using Dalmarkit.Common.Errors;
-using Dalmarkit.Common.Validation;
+using Dalmarcron.Scheduler.Application.Mappers;
 using Dalmarcron.Scheduler.Application.Options;
-using Dalmarkit.EntityFrameworkCore.Services.ApplicationServices;
+using Dalmarcron.Scheduler.Application.Services.AwsServices;
 using Dalmarcron.Scheduler.Application.Services.DataServices;
+using Dalmarcron.Scheduler.Core.Constants;
 using Dalmarcron.Scheduler.Core.Dtos.Inputs;
 using Dalmarcron.Scheduler.Core.Dtos.Outputs;
 using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
-using Dalmarcron.Scheduler.Application.Mappers;
+using Dalmarkit.Common.Api.Responses;
+using Dalmarkit.Common.Errors;
+using Dalmarkit.Common.Validation;
+using Dalmarkit.EntityFrameworkCore.Services.ApplicationServices;
 using Microsoft.Extensions.Options;
 
 namespace Dalmarcron.Scheduler.Application.Services.ApplicationServices;
@@ -18,11 +20,13 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
     private readonly IMapper _mapper;
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
+    private readonly IAwsLambdaService _awsLambdaService;
 
     public DalmarcronSchedulerQueryService(
         IMapper mapper,
         IOptions<SchedulerOptions> schedulerOptions,
-        IScheduledJobDataService scheduledJobDataService) : base(mapper)
+        IScheduledJobDataService scheduledJobDataService,
+        IAwsLambdaService awsLambdaService) : base(mapper)
     {
         _mapper = Guard.NotNull(mapper, nameof(mapper));
 
@@ -30,9 +34,34 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
         _schedulerOptions.Validate();
 
         _scheduledJobDataService = Guard.NotNull(scheduledJobDataService, nameof(scheduledJobDataService));
+        _awsLambdaService = Guard.NotNull(awsLambdaService, nameof(awsLambdaService));
     }
 
     #region ScheduledJob
+    public async Task<Result<PublishedJobDetailOutputDto, ErrorDetail>> GetPublishedJobDetailAsync(GetPublishedJobDetailInputDto inputDto, CancellationToken cancellationToken = default)
+    {
+        ScheduledJob? scheduledJob = await _scheduledJobDataService.GetScheduledJobDetailAsync(inputDto.ScheduledJobId, cancellationToken);
+        if (scheduledJob == null)
+        {
+            return Error<PublishedJobDetailOutputDto>(ErrorTypes.ResourceNotFoundFor, "ScheduledJob", inputDto.ScheduledJobId);
+        }
+        if (scheduledJob.PublicationState != PublicationState.Published)
+        {
+            return Error<PublishedJobDetailOutputDto>(ErrorTypes.BadRequestDetails, $"ScheduledJob must be published: {inputDto.ScheduledJobId}");
+        }
+
+        string functionName = _schedulerOptions.GetLambdaFunctionName(scheduledJob.ScheduledJobId);
+        FunctionConfig functionConfig = await _awsLambdaService.GetFunctionAsync(functionName);
+
+        PublishedJobDetailOutputDto output = _mapper.Map<PublishedJobDetailOutputDto>(
+            scheduledJob,
+            opts =>
+                opts.Items[MapperItemKeys.FunctionConfig] = functionConfig
+        );
+
+        return Ok(output);
+    }
+
     public async Task<Result<ScheduledJobDetailOutputDto, ErrorDetail>> GetScheduledJobDetailAsync(GetScheduledJobDetailInputDto inputDto, CancellationToken cancellationToken = default)
     {
         ScheduledJob? scheduledJob = await _scheduledJobDataService.GetScheduledJobDetailAsync(inputDto.ScheduledJobId, cancellationToken);

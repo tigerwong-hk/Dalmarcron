@@ -7,19 +7,30 @@ namespace Dalmarcron.Scheduler.Application.Options;
 public class SchedulerOptions
 {
     public string? LambdaArchitecture { get; set; }
+    public string? LambdaDescription { get; set; }
+    public string? LambdaFunctionNamePrefix { get; set; }
     public string? LambdaHandler { get; set; }
     public uint LambdaMemorySizeMb { get; set; }
+    public string? LambdaRole { get; set; }
     public string? LambdaRuntime { get; set; }
     public string? LambdaS3Bucket { get; set; }
     public string? LambdaS3Key { get; set; }
-    public uint LambdaTimeoutSeconds { get; set; }
+    public int LambdaTimeoutSeconds { get; set; }
     public string? SsmParametersPathPrefix { get; set; }
     public string? SymmetricEncryptionSecretKey { get; set; }
+
+    public string GetLambdaFunctionName(Guid scheduledJobId)
+    {
+        return $"{LambdaFunctionNamePrefix}-{scheduledJobId}";
+    }
 
     public void Validate()
     {
         _ = Guard.NotNullOrWhiteSpace(LambdaArchitecture, nameof(LambdaArchitecture));
+        _ = Guard.NotNullOrWhiteSpace(LambdaDescription, nameof(LambdaDescription));
+        _ = Guard.NotNullOrWhiteSpace(LambdaFunctionNamePrefix, nameof(LambdaFunctionNamePrefix));
         _ = Guard.NotNullOrWhiteSpace(LambdaHandler, nameof(LambdaHandler));
+        _ = Guard.NotNullOrWhiteSpace(LambdaRole, nameof(LambdaRole));
         _ = Guard.NotNullOrWhiteSpace(LambdaRuntime, nameof(LambdaRuntime));
         _ = Guard.NotNullOrWhiteSpace(LambdaS3Bucket, nameof(LambdaS3Bucket));
         _ = Guard.NotNullOrWhiteSpace(LambdaS3Key, nameof(LambdaS3Key));

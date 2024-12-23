@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Dalmarcron.Scheduler.Application.Services.ApplicationServices;
 using Dalmarcron.Scheduler.Core.Dtos.Inputs;
 using Dalmarcron.Scheduler.Core.Dtos.Outputs;
@@ -11,6 +10,7 @@ using Dalmarkit.Common.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dalmarcron.Scheduler.WebApi.Controllers.V1;
@@ -49,6 +49,16 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
     {
         AuditDetail auditDetail = CreateAuditDetail();
         Result<Guid, ErrorDetail> result = await _dalmarcronSchedulerCommandService.DeleteScheduledJobAsync(inputDto, auditDetail);
+
+        return ApiResponse(result);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpGet]
+    public async Task<ActionResult> GetPublishedJobDetailAsync([FromQuery] GetPublishedJobDetailInputDto inputDto)
+    {
+        Result<PublishedJobDetailOutputDto, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetPublishedJobDetailAsync(inputDto);
 
         return ApiResponse(result);
     }
