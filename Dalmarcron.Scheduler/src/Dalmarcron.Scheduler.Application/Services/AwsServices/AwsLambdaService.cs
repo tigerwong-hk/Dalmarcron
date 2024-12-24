@@ -11,6 +11,11 @@ public class AwsLambdaService(AmazonLambdaClient lambdaClient, IMapper mapper) :
     private readonly AmazonLambdaClient _lambdaClient = Guard.NotNull(lambdaClient, nameof(lambdaClient));
     private readonly IMapper _mapper = Guard.NotNull(mapper, nameof(mapper));
 
+    public static string GetCronScheduleExpression(string cronExpression)
+    {
+        return $"cron({cronExpression})";
+    }
+
     public async Task<string> AddPermissionAsync(string functionName, string action, string principal, string source)
     {
         _ = Guard.NotNullOrWhiteSpace(functionName, nameof(functionName));

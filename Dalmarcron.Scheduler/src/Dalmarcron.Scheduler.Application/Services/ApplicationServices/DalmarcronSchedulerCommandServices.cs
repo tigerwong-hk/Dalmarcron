@@ -23,6 +23,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
     private readonly IMapper _mapper;
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
+    private readonly IAwsCloudWatchEventsService _awsCloudWatchEventsService;
     private readonly IAwsLambdaService _awsLambdaService;
     private readonly IAwsSystemsManagerService _awsSystemsManagerService;
     private readonly ILogger _logger;
@@ -31,6 +32,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         IMapper mapper,
         IOptions<SchedulerOptions> schedulerOptions,
         IScheduledJobDataService scheduledJobDataService,
+        IAwsCloudWatchEventsService awsCloudWatchEventsService,
         IAwsLambdaService awsLambdaService,
         IAwsSystemsManagerService awsSystemsManagerService,
         ILogger<DalmarcronSchedulerCommandService> logger) : base(mapper)
@@ -41,6 +43,8 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         _schedulerOptions.Validate();
 
         _scheduledJobDataService = Guard.NotNull(scheduledJobDataService, nameof(scheduledJobDataService));
+
+        _awsCloudWatchEventsService = Guard.NotNull(awsCloudWatchEventsService, nameof(awsCloudWatchEventsService));
         _awsLambdaService = Guard.NotNull(awsLambdaService, nameof(awsLambdaService));
         _awsSystemsManagerService = Guard.NotNull(awsSystemsManagerService, nameof(awsSystemsManagerService));
 
@@ -179,10 +183,11 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         }
 
         string functionName = _schedulerOptions.GetLambdaFunctionName(scheduledJob.ScheduledJobId);
+        string functionArn;
 
         try
         {
-            string result = await _awsLambdaService.CreateFunctionAsync(
+            functionArn = await _awsLambdaService.CreateFunctionAsync(
                 functionName,
                 _schedulerOptions.LambdaRuntime!,
                 _schedulerOptions.LambdaS3Bucket!,
@@ -198,6 +203,64 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         catch (Exception ex)
         {
             _logger.CreateFunctionError(functionName, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+
+            if (deleteParameterNames.Count > 0)
+            {
+                await _awsSystemsManagerService.DeleteParametersAsync(deleteParameterNames);
+            }
+
+            scheduledJob.PublicationState = PublicationState.Unpublished;
+            _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
+            _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+
+            return Error<Guid>(ErrorTypes.ServerError);
+        }
+
+        string triggerName = _schedulerOptions.GetLambdaTriggerName(scheduledJob.ScheduledJobId);
+        string triggerArn;
+
+        try
+        {
+            triggerArn = await _awsCloudWatchEventsService.CreateScheduleTriggerAsync(
+                triggerName,
+                AwsLambdaService.GetCronScheduleExpression(scheduledJob.CronExpression),
+                functionArn,
+                _schedulerOptions.LambdaDescription!
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.CreateScheduleTriggerError(functionName, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+
+            await _awsLambdaService.DeleteFunctionAsync(functionName);
+
+            if (deleteParameterNames.Count > 0)
+            {
+                await _awsSystemsManagerService.DeleteParametersAsync(deleteParameterNames);
+            }
+
+            scheduledJob.PublicationState = PublicationState.Unpublished;
+            _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
+            _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+
+            return Error<Guid>(ErrorTypes.ServerError);
+        }
+
+        try
+        {
+            string result = await _awsLambdaService.AddPermissionAsync(
+                functionName,
+                LambdaAction.InvokeFunction,
+                LambdaTriggerSource.CloudWatchEvents,
+                triggerArn
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.AddPermissionError(functionName, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+
+            await _awsCloudWatchEventsService.DeleteScheduleTriggerAsync(triggerName);
+            await _awsLambdaService.DeleteFunctionAsync(functionName);
 
             if (deleteParameterNames.Count > 0)
             {
@@ -239,6 +302,23 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         scheduledJob.PublicationState = PublicationState.PendingUnpublish;
         _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
         _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+
+        string triggerName = _schedulerOptions.GetLambdaTriggerName(scheduledJob.ScheduledJobId);
+
+        try
+        {
+            await _awsCloudWatchEventsService.DeleteScheduleTriggerAsync(triggerName);
+        }
+        catch (Exception ex)
+        {
+            _logger.DeleteScheduleTriggerError(triggerName, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+
+            scheduledJob.PublicationState = PublicationState.ErrorUnpublish;
+            _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
+            _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+
+            return Error<Guid>(ErrorTypes.ServerError);
+        }
 
         string functionName = _schedulerOptions.GetLambdaFunctionName(scheduledJob.ScheduledJobId);
 
@@ -285,7 +365,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         }
         catch (Exception ex)
         {
-            _logger.DeleteSecretParametersError(deleteParameterNames, ex.Message, ex.InnerException?.Message, ex.StackTrace);
+            _logger.DeleteParametersError(deleteParameterNames, ex.Message, ex.InnerException?.Message, ex.StackTrace);
 
             scheduledJob.PublicationState = PublicationState.ErrorUnpublish;
             _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
@@ -372,26 +452,47 @@ public static partial class DalmarcronSchedulerCommandServiceLogs
     [LoggerMessage(
         EventId = 0,
         Level = LogLevel.Error,
+        Message = "Add permission error for `{FunctionName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
+    public static partial void AddPermissionError(
+        this ILogger logger, string functionName, string message, string? innerException, string? stackTrace);
+
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Error,
         Message = "Create function error for `{FunctionName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
     public static partial void CreateFunctionError(
         this ILogger logger, string functionName, string message, string? innerException, string? stackTrace);
 
     [LoggerMessage(
-        EventId = 1,
+        EventId = 2,
+        Level = LogLevel.Error,
+        Message = "Create schedule trigger error for `{FunctionName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
+    public static partial void CreateScheduleTriggerError(
+        this ILogger logger, string functionName, string message, string? innerException, string? stackTrace);
+
+    [LoggerMessage(
+        EventId = 3,
         Level = LogLevel.Error,
         Message = "Delete function error for `{FunctionName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
     public static partial void DeleteFunctionError(
         this ILogger logger, string functionName, string message, string? innerException, string? stackTrace);
 
     [LoggerMessage(
-        EventId = 2,
+        EventId = 4,
         Level = LogLevel.Error,
-        Message = "Delete secret parameters error for `{deleteParameterNames}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
-    public static partial void DeleteSecretParametersError(
+        Message = "Delete parameters error for `{deleteParameterNames}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
+    public static partial void DeleteParametersError(
         this ILogger logger, List<string> deleteParameterNames, string message, string? innerException, string? stackTrace);
 
     [LoggerMessage(
-        EventId = 3,
+        EventId = 5,
+        Level = LogLevel.Error,
+        Message = "Delete schedule trigger error for `{FunctionName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
+    public static partial void DeleteScheduleTriggerError(
+        this ILogger logger, string functionName, string message, string? innerException, string? stackTrace);
+
+    [LoggerMessage(
+        EventId = 6,
         Level = LogLevel.Error,
         Message = "Set secret parameter error for `{ParameterName}` with message `{Message}` and inner exception `{InnerException}`: {StackTrace}")]
     public static partial void SetSecretParameterError(

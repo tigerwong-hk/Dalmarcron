@@ -24,6 +24,11 @@ public class SchedulerOptions
         return $"{LambdaFunctionNamePrefix}-{scheduledJobId}";
     }
 
+    public string GetLambdaTriggerName(Guid scheduledJobId)
+    {
+        return $"{LambdaFunctionNamePrefix}-{scheduledJobId}-trigger";
+    }
+
     public void Validate()
     {
         _ = Guard.NotNullOrWhiteSpace(LambdaArchitecture, nameof(LambdaArchitecture));

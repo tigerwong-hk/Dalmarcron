@@ -36,7 +36,7 @@ public class AwsCloudWatchEventsService(AmazonCloudWatchEventsClient cloudWatchE
         Target scheduleTarget = new()
         {
             Arn = target,
-            Id = $"{triggerName}-target",
+            Id = GetTriggerTargetId(triggerName),
         };
 
         PutTargetsRequest putTargetsRequest = new()
@@ -97,6 +97,21 @@ public class AwsCloudWatchEventsService(AmazonCloudWatchEventsClient cloudWatchE
 
     public async Task DeleteScheduleTriggerAsync(string triggerName)
     {
+        RemoveTargetsRequest removeTargetsRequest = new()
+        {
+            Rule = triggerName,
+            Ids = [GetTriggerTargetId(triggerName)]
+        };
+
+        RemoveTargetsResponse removeTargetsResponse = await _cloudWatchEventsClient.RemoveTargetsAsync(removeTargetsRequest);
+        if (removeTargetsResponse.HttpStatusCode is < HttpStatusCode.OK or >= HttpStatusCode.Ambiguous)
+        {
+            throw new HttpRequestException(
+                $"Error status for RemoveTargets for DeleteScheduleTrigger({triggerName}) request: {removeTargetsResponse.HttpStatusCode}",
+                null,
+                removeTargetsResponse.HttpStatusCode);
+        }
+
         DeleteRuleRequest deleteRuleRequest = new()
         {
             Name = triggerName
@@ -110,5 +125,10 @@ public class AwsCloudWatchEventsService(AmazonCloudWatchEventsClient cloudWatchE
                 null,
                 deleteRuleResponse.HttpStatusCode);
         }
+    }
+
+    private static string GetTriggerTargetId(string triggerName)
+    {
+        return $"{triggerName}-target";
     }
 }
