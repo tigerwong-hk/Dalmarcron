@@ -28,8 +28,8 @@ async function createOauth2HttpClient(logger: Logger): Promise<OAuth2Fetch> {
   }
 
   const oauth2ParametersOptions: Record<string, SSMGetParametersByNameOptions> = {
-    [`${ssmParametersPathPrefix}/oauth2/clientId`]: { decrypt: true },
-    [`${ssmParametersPathPrefix}/oauth2/clientSecret`]: { decrypt: true },
+    [`${ssmParametersPathPrefix}/Oauth2ClientId`]: { decrypt: true },
+    [`${ssmParametersPathPrefix}/Oauth2ClientSecret`]: { decrypt: true },
   };
 
   const oauth2Parameters: Record<string, string> =
@@ -41,13 +41,13 @@ async function createOauth2HttpClient(logger: Logger): Promise<OAuth2Fetch> {
   */
 
   const oauth2ClientId: string =
-    oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientId`] ?? "";
+    oauth2Parameters[`${ssmParametersPathPrefix}/Oauth2ClientId`] ?? "";
   if (oauth2ClientId.trim().length < 1) {
     throw new Error("Oauth2 client ID missing");
   }
 
   const oauth2ClientSecret: string =
-    oauth2Parameters[`${ssmParametersPathPrefix}/oauth2/clientSecret`] ?? "";
+    oauth2Parameters[`${ssmParametersPathPrefix}/Oauth2ClientSecret`] ?? "";
   if (oauth2ClientSecret.trim().length < 1) {
     throw new Error("Oauth2 client secret missing");
   }
@@ -89,16 +89,16 @@ const send =
         throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
       }
 
-      logger.info("Fetch API response ok", response.ok.toString());
-      logger.info("Fetch API response status", response.status.toString());
-      logger.info("Fetch API response status text", response.statusText);
-      logger.info("Fetch API response type", response.type);
-      logger.info("Fetch API response url", response.url);
-      logger.info("Fetch API response redirected", response.redirected.toString());
+      logger.info("OAuth2 Fetch API response ok", response.ok.toString());
+      logger.info("OAuth2 Fetch API response status", response.status.toString());
+      logger.info("OAuth2 Fetch API response status text", response.statusText);
+      logger.info("OAuth2 Fetch API response type", response.type);
+      logger.info("OAuth2 Fetch API response url", response.url);
+      logger.info("OAuth2 Fetch API response redirected", response.redirected.toString());
 
       return response;
     } catch (err) {
-      logger.error("Fetch exception", err instanceof Error ? err : JSON.stringify(err));
+      logger.error("OAuth2 Fetch exception", err instanceof Error ? err : JSON.stringify(err));
       throw err;
     }
   };

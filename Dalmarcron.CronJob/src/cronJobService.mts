@@ -49,13 +49,13 @@ if (ssmParametersPathPrefix.trim().length < 1) {
 }
 
 const apiUrl: string =
-  (await getParameter(`${ssmParametersPathPrefix}/api/url`, { decrypt: true })) ?? "";
+  (await getParameter(`${ssmParametersPathPrefix}/ApiUrl`, { decrypt: true })) ?? "";
 if (apiUrl.trim().length < 1) {
   throw new Error("API URL missing");
 }
 
 const apiHeadersOptions: Record<string, SSMGetParametersByNameOptions> = {
-  [`${ssmParametersPathPrefix}/api/headers`]: { decrypt: true, transform: Transform.JSON },
+  [`${ssmParametersPathPrefix}/ApiHeaders`]: { decrypt: true, transform: Transform.JSON },
 };
 
 const { _errors: apiHeadersErrors, ...apiHeadersParameters } =
@@ -65,12 +65,12 @@ const { _errors: apiHeadersErrors, ...apiHeadersParameters } =
 
 const apiHeaders: HeadersInit = apiHeadersErrors?.length
   ? {}
-  : (apiHeadersParameters[`${ssmParametersPathPrefix}/api/headers`] ?? {});
+  : (apiHeadersParameters[`${ssmParametersPathPrefix}/ApiHeaders`] ?? {});
 
 console.log("apiHeaders: ", JSON.stringify(apiHeaders));
 
 const apiJsonBodyOptions: Record<string, SSMGetParametersByNameOptions> = {
-  [`${ssmParametersPathPrefix}/api/jsonBody`]: { decrypt: true, transform: Transform.JSON },
+  [`${ssmParametersPathPrefix}/ApiJsonBody`]: { decrypt: true, transform: Transform.JSON },
 };
 
 const { _errors: apiJsonBodyErrors, ...apiJsonBodyParameters } = await getParametersByName<
@@ -81,7 +81,7 @@ const { _errors: apiJsonBodyErrors, ...apiJsonBodyParameters } = await getParame
 
 const apiJsonBody: Record<string, unknown> | null = apiJsonBodyErrors?.length
   ? null
-  : (apiJsonBodyParameters[`${ssmParametersPathPrefix}/api/jsonBody`] ?? null);
+  : (apiJsonBodyParameters[`${ssmParametersPathPrefix}/ApiJsonBody`] ?? null);
 
 console.log("apiJsonBody: ", JSON.stringify(apiJsonBody));
 
@@ -132,17 +132,17 @@ const execute = (logger: Logger) => async (): Promise<void> => {
       throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
     }
 
-    logger.info("Fetch API response ok", response.ok.toString());
-    logger.info("Fetch API response status", response.status.toString());
-    logger.info("Fetch API response status text", response.statusText);
-    logger.info("Fetch API response type", response.type);
-    logger.info("Fetch API response url", response.url);
-    logger.info("Fetch API response redirected", response.redirected.toString());
+    logger.info("API service send response ok", response.ok.toString());
+    logger.info("API service send response status", response.status.toString());
+    logger.info("API service send response status text", response.statusText);
+    logger.info("API service send response type", response.type);
+    logger.info("API service send response url", response.url);
+    logger.info("API service send response redirected", response.redirected.toString());
 
     const json: object = (await response.json()) as object;
-    logger.info("Fetch API response json", JSON.stringify(json));
+    logger.info("API service send response json", JSON.stringify(json));
   } catch (err) {
-    logger.error("Fetch exception", err instanceof Error ? err : JSON.stringify(err));
+    logger.error("API service send exception", err instanceof Error ? err : JSON.stringify(err));
     throw err;
   }
 };
