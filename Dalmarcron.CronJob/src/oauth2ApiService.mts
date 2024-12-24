@@ -12,6 +12,8 @@ async function createOauth2HttpClient(logger: Logger): Promise<OAuth2Fetch> {
     throw new Error("Oauth2 base URI missing");
   }
 
+  console.log("oauth2BaseUri: ", oauth2BaseUri);
+
   const oauth2ClientScope: string = process.env["OAUTH2_CLIENT_SCOPE"] ?? "";
   if (oauth2ClientScope.trim().length < 1) {
     throw new Error("Oauth2 client scope missing");
@@ -89,11 +91,11 @@ const send =
         throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
       }
 
-      logger.info("OAuth2 Fetch API response ok", response.ok.toString());
+      // logger.info("OAuth2 Fetch API response ok", response.ok.toString());
       logger.info("OAuth2 Fetch API response status", response.status.toString());
-      logger.info("OAuth2 Fetch API response status text", response.statusText);
-      logger.info("OAuth2 Fetch API response type", response.type);
-      logger.info("OAuth2 Fetch API response url", response.url);
+      // logger.info("OAuth2 Fetch API response status text", response.statusText);
+      // logger.info("OAuth2 Fetch API response type", response.type);
+      // logger.info("OAuth2 Fetch API response url", response.url);
       logger.info("OAuth2 Fetch API response redirected", response.redirected.toString());
 
       return response;

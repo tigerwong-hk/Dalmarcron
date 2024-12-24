@@ -10,11 +10,11 @@ const send =
         throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
       }
 
-      logger.info("Fetch API response ok", response.ok.toString());
+      // logger.info("Fetch API response ok", response.ok.toString());
       logger.info("Fetch API response status", response.status.toString());
-      logger.info("Fetch API response status text", response.statusText);
-      logger.info("Fetch API response type", response.type);
-      logger.info("Fetch API response url", response.url);
+      // logger.info("Fetch API response status text", response.statusText);
+      // logger.info("Fetch API response type", response.type);
+      // logger.info("Fetch API response url", response.url);
       logger.info("Fetch API response redirected", response.redirected.toString());
 
       return response;

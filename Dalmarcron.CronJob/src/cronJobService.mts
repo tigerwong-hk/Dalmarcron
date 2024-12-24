@@ -67,7 +67,7 @@ const apiHeaders: HeadersInit = apiHeadersErrors?.length
   ? {}
   : (apiHeadersParameters[`${ssmParametersPathPrefix}/ApiHeaders`] ?? {});
 
-console.log("apiHeaders: ", JSON.stringify(apiHeaders));
+// console.log("apiHeaders: ", JSON.stringify(apiHeaders));
 
 const apiJsonBodyOptions: Record<string, SSMGetParametersByNameOptions> = {
   [`${ssmParametersPathPrefix}/ApiJsonBody`]: { decrypt: true, transform: Transform.JSON },
@@ -83,7 +83,7 @@ const apiJsonBody: Record<string, unknown> | null = apiJsonBodyErrors?.length
   ? null
   : (apiJsonBodyParameters[`${ssmParametersPathPrefix}/ApiJsonBody`] ?? null);
 
-console.log("apiJsonBody: ", JSON.stringify(apiJsonBody));
+// console.log("apiJsonBody: ", JSON.stringify(apiJsonBody));
 
 const execute = (logger: Logger) => async (): Promise<void> => {
   /*
@@ -107,13 +107,13 @@ const execute = (logger: Logger) => async (): Promise<void> => {
   logger.info("keyExists", keyExistsAfterDelete.toString());
   */
 
-  logger.info("apiUrl", apiUrl);
+  // logger.info("apiUrl", apiUrl);
 
   if (apiMethod.toUpperCase() === "POST" && apiIdempotencyKey.trim().length > 0 && apiJsonBody) {
     apiJsonBody[apiIdempotencyKey] = uuidv4();
   }
 
-  console.log("apiJsonBody (POST): ", JSON.stringify(apiJsonBody));
+  // console.log("apiJsonBody (POST): ", JSON.stringify(apiJsonBody));
 
   const apiService: IApiService =
     apiType === "OAUTH2" ? createOauth2ApiService(logger) : createFetchApiService(logger);
@@ -132,11 +132,11 @@ const execute = (logger: Logger) => async (): Promise<void> => {
       throw new Error(`Response status: ${response.status.toString()} ${response.statusText}`);
     }
 
-    logger.info("API service send response ok", response.ok.toString());
+    // logger.info("API service send response ok", response.ok.toString());
     logger.info("API service send response status", response.status.toString());
-    logger.info("API service send response status text", response.statusText);
-    logger.info("API service send response type", response.type);
-    logger.info("API service send response url", response.url);
+    // logger.info("API service send response status text", response.statusText);
+    // logger.info("API service send response type", response.type);
+    // logger.info("API service send response url", response.url);
     logger.info("API service send response redirected", response.redirected.toString());
 
     const json: object = (await response.json()) as object;
