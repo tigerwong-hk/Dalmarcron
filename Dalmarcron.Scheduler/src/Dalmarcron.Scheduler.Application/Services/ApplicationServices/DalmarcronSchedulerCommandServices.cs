@@ -23,6 +23,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
     private readonly IMapper _mapper;
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
+    private readonly IJobPublishedTransactionDataService _jobPublishedTransactionDataService;
     private readonly IAwsCloudWatchEventsService _awsCloudWatchEventsService;
     private readonly IAwsLambdaService _awsLambdaService;
     private readonly IAwsSystemsManagerService _awsSystemsManagerService;
@@ -32,6 +33,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         IMapper mapper,
         IOptions<SchedulerOptions> schedulerOptions,
         IScheduledJobDataService scheduledJobDataService,
+        IJobPublishedTransactionDataService jobPublishedTransactionDataService,
         IAwsCloudWatchEventsService awsCloudWatchEventsService,
         IAwsLambdaService awsLambdaService,
         IAwsSystemsManagerService awsSystemsManagerService,
@@ -43,6 +45,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         _schedulerOptions.Validate();
 
         _scheduledJobDataService = Guard.NotNull(scheduledJobDataService, nameof(scheduledJobDataService));
+        _jobPublishedTransactionDataService = Guard.NotNull(jobPublishedTransactionDataService, nameof(jobPublishedTransactionDataService));
 
         _awsCloudWatchEventsService = Guard.NotNull(awsCloudWatchEventsService, nameof(awsCloudWatchEventsService));
         _awsLambdaService = Guard.NotNull(awsLambdaService, nameof(awsLambdaService));
@@ -246,9 +249,11 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
             return Error<Guid>(ErrorTypes.ServerError);
         }
 
+        string permissionStatement;
+
         try
         {
-            string result = await _awsLambdaService.AddPermissionAsync(
+            permissionStatement = await _awsLambdaService.AddPermissionAsync(
                 functionName,
                 LambdaAction.InvokeFunction,
                 LambdaTriggerSource.CloudWatchEvents,
@@ -274,9 +279,21 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
             return Error<Guid>(ErrorTypes.ServerError);
         }
 
+        JobPublishedTransaction jobPublishedTransaction = _mapper.Map<JobPublishedTransaction>(
+            scheduledJob,
+            opts =>
+            {
+                opts.Items[MapperItemKeys.CreateRequestId] = inputDto.CreateRequestId;
+                opts.Items[MapperItemKeys.LambdaFunctionArn] = functionArn;
+                opts.Items[MapperItemKeys.LambdaTriggerArn] = triggerArn;
+                opts.Items[MapperItemKeys.LambdaPermissionStatement] = permissionStatement;
+            }
+        );
+        _ = await _jobPublishedTransactionDataService.CreateAsync(jobPublishedTransaction, auditDetail, cancellationToken);
+
         scheduledJob.PublicationState = PublicationState.Published;
         _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
-        _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+        _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken); // same DbContext instance will be injected as DbContext has service lifetime set to scoped
 
         return Ok(scheduledJob.ScheduledJobId);
     }

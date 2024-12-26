@@ -16,6 +16,7 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
 
     public DbSet<ApiLog> ApiLogs { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    public DbSet<JobPublishedTransaction> JobPublishedTransactions { get; set; } = null!;
     public DbSet<ScheduledJob> ScheduledJobs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,6 +45,19 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
             .HasIndex(e => e.JobName)
             .HasFilter(@"""IsDeleted"" = false")
             .IsUnique();
+
+        _ = modelBuilder.BuildReadOnlyEntity<JobPublishedTransaction>();
+        _ = modelBuilder.Entity<JobPublishedTransaction>()
+            .Property(e => e.JobPublishedTransactionId)
+            .HasDefaultValueSql(ModelBuilderExtensions.DefaultGuidValueSql);
+        _ = modelBuilder.Entity<JobPublishedTransaction>()
+            .Property(e => e.ApiMethod)
+            .HasConversion(ApiMethodConverter)
+            .HasMaxLength(20);
+        _ = modelBuilder.Entity<JobPublishedTransaction>()
+            .Property(e => e.ApiType)
+            .HasConversion(ApiTypeConverter)
+            .HasMaxLength(20);
 
         base.OnModelCreating(modelBuilder);
     }

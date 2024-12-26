@@ -20,6 +20,7 @@ public static class ApplicationServiceCollectionExtensions
         _ = services.AddCloudServices(config);
 
         _ = services.AddScoped<IScheduledJobDataService, ScheduledJobDataService>();
+        _ = services.AddScoped<IJobPublishedTransactionDataService, JobPublishedTransactionDataService>();
 
         _ = services.AddScoped<IDalmarcronSchedulerQueryService, DalmarcronSchedulerQueryService>();
         _ = services.AddScoped<IDalmarcronSchedulerCommandService, DalmarcronSchedulerCommandService>();

@@ -7,6 +7,10 @@ namespace Dalmarcron.Scheduler.Application.Services.ApplicationServices;
 
 public interface IDalmarcronSchedulerQueryService
 {
+    Task<Result<JobPublishedTransactionDetailOutputDto, ErrorDetail>> GetJobPublishedTransactionDetailAsync(GetJobPublishedTransactionDetailInputDto inputDto, CancellationToken cancellationToken = default);
+
+    Task<Result<ResponsePagination<JobPublishedTransactionOutputDto>, ErrorDetail>> GetJobPublishedTransactionListAsync(GetJobPublishedTransactionListInputDto inputDto, CancellationToken cancellationToken = default);
+
     Task<Result<PublishedJobDetailOutputDto, ErrorDetail>> GetPublishedJobDetailAsync(GetPublishedJobDetailInputDto inputDto, CancellationToken cancellationToken = default);
 
     Task<Result<ScheduledJobDetailOutputDto, ErrorDetail>> GetScheduledJobDetailAsync(GetScheduledJobDetailInputDto inputDto, CancellationToken cancellationToken = default);

@@ -23,6 +23,104 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Dalmarcron.Scheduler.EntityFrameworkCore.Entities.JobPublishedTransaction", b =>
+                {
+                    b.Property<Guid>("JobPublishedTransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("ApiHeaders")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiIdempotencyKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiJsonBody")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ApiMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ApiType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ApiUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreateRequestId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("CreatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CronExpression")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("JobName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LambdaFunctionArn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LambdaPermissionStatement")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LambdaTriggerArn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Oauth2BaseUri")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Oauth2ClientId")
+                        .HasColumnType("text");
+
+                    b.Property<List<string>>("Oauth2ClientScopes")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Oauth2ClientSecret")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ScheduledJobId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("JobPublishedTransactionId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CreatedOn");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("ScheduledJobId");
+
+                    b.HasIndex("CreateRequestId", "ClientId")
+                        .IsUnique();
+
+                    b.ToTable("JobPublishedTransactions");
+                });
+
             modelBuilder.Entity("Dalmarcron.Scheduler.EntityFrameworkCore.Entities.ScheduledJob", b =>
                 {
                     b.Property<Guid>("ScheduledJobId")
@@ -280,6 +378,17 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     b.HasIndex("Table", "PrimaryKey");
 
                     b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("Dalmarcron.Scheduler.EntityFrameworkCore.Entities.JobPublishedTransaction", b =>
+                {
+                    b.HasOne("Dalmarcron.Scheduler.EntityFrameworkCore.Entities.ScheduledJob", "ScheduledJob")
+                        .WithMany()
+                        .HasForeignKey("ScheduledJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ScheduledJob");
                 });
 #pragma warning restore 612, 618
         }

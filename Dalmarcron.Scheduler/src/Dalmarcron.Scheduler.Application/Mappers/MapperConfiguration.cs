@@ -20,6 +20,8 @@ public class MapperConfigurations : MapperConfigurationBase
             .ForMember(d => d.MemoryMbSize, opt => opt.MapFrom(src => src.MemorySize))
             .ForMember(d => d.Runtime, opt => opt.MapFrom(src => src.Runtime.ToString(CultureInfo.InvariantCulture)))
             .ForMember(d => d.TimeoutSeconds, opt => opt.MapFrom(src => src.Timeout));
+
+        _ = config.CreateMap<FunctionConfig, FunctionConfigOutputDto>();
     }
 
     protected override void DtoToEntityMappingConfigure(IMapperConfigurationExpression config)
@@ -103,11 +105,27 @@ public class MapperConfigurations : MapperConfigurationBase
                         (string)context.Items[MapperItemKeys.SymmetricEncryptionSecretKey]
                     )
             ));
+
+        _ = config.CreateMap<ScheduledJob, JobPublishedTransaction>()
+            .ForMember(d => d.CreateRequestId, opt => opt.MapFrom((_, _, _, context) =>
+                (string)context.Items[MapperItemKeys.CreateRequestId]
+            ))
+            .ForMember(d => d.LambdaFunctionArn, opt => opt.MapFrom((_, _, _, context) =>
+                (string)context.Items[MapperItemKeys.LambdaFunctionArn]
+            ))
+            .ForMember(d => d.LambdaPermissionStatement, opt => opt.MapFrom((_, _, _, context) =>
+                (string)context.Items[MapperItemKeys.LambdaPermissionStatement]
+            ))
+            .ForMember(d => d.LambdaTriggerArn, opt => opt.MapFrom((_, _, _, context) =>
+                (string)context.Items[MapperItemKeys.LambdaTriggerArn]
+            ));
     }
 
     protected override void EntityToDtoMappingConfigure(IMapperConfigurationExpression config)
     {
-        _ = config.CreateMap<FunctionConfig, FunctionConfigOutputDto>();
+        _ = config.CreateMap<JobPublishedTransaction, JobPublishedTransactionOutputDto>();
+        _ = config.CreateMap<JobPublishedTransaction, JobPublishedTransactionDetailOutputDto>();
+
         _ = config.CreateMap<ScheduledJob, PublishedJobDetailOutputDto>()
             .ForMember(d => d.Function, opt => opt.MapFrom((_, _, _, context) =>
                 (FunctionConfig)context.Items[MapperItemKeys.FunctionConfig]

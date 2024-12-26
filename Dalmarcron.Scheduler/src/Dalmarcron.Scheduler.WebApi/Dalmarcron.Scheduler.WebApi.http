@@ -84,6 +84,10 @@
 @oauth2ClientScopeCreate = sched-rest/bo.adm.sched
 @oauth2ClientSecretCreate = {{$dotenv OAUTH2_CLIENT_SECRET}}
 
+######### Job Published Transaction IDs
+
+@jobPublishedTransactionId = {{GetAllJobPublishedTransactionListAsBackofficeAdminSuccess.response.body.data.data[0].jobPublishedTransactionId}}
+
 ######### Scheduled Job IDs
 
 @scheduledJobId = {{GetAllScheduledJobListAsBackofficeAdminSuccess.response.body.data.data[0].scheduledJobId}}
@@ -390,6 +394,75 @@ Authorization: Bearer {{tenantAdmin02AccessToken}}
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
+###### GetJobPublishedTransactionDetail
+
+# @name GetJobPublishedTransactionDetailAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionDetail?JobPublishedTransactionId={{jobPublishedTransactionId}}
+
+###
+
+# @name GetJobPublishedTransactionDetailAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionDetail?JobPublishedTransactionId={{jobPublishedTransactionId}}
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetJobPublishedTransactionDetailAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionDetail?JobPublishedTransactionId={{jobPublishedTransactionId}}
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetJobPublishedTransactionDetailAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionDetail?JobPublishedTransactionId={{jobPublishedTransactionId}}
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###### GetJobPublishedTransactionList
+
+# @name GetAllJobPublishedTransactionListAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?PageNumber=1&PageSize=100
+
+###
+
+# @name GetAllJobPublishedTransactionListAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?PageNumber=1&PageSize=100
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetAllJobPublishedTransactionListAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetAllJobPublishedTransactionListAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
+###
+
+# @name GetJobPublishedTransactionListForScheduledJobIdAsAnonymousUnauthorized
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?ScheduledJobId={{scheduledJobId}}&PageNumber=1&PageSize=100
+
+###
+
+# @name GetJobPublishedTransactionListForScheduledJobIdAsBackofficeAdminSuccess
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?ScheduledJobId={{scheduledJobId}}&PageNumber=1&PageSize=100
+Authorization: Bearer {{backofficeAdminAccessToken}}
+
+###
+
+# @name GetJobPublishedTransactionListForScheduledJobIdAsTenantAdmin01Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?ScheduledJobId={{scheduledJobId}}&PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin01AccessToken}}
+
+###
+
+# @name GetJobPublishedTransactionListForScheduledJobIdAsTenantAdmin02Forbidden
+GET {{apiUrl}}{{apiControllerPrefix}}/GetJobPublishedTransactionList?ScheduledJobId={{scheduledJobId}}&PageNumber=1&PageSize=100
+Authorization: Bearer {{tenantAdmin02AccessToken}}
+
 ###### GetPublishedJobDetail
 
 # @name GetPublishedJobDetailAsAnonymousUnauthorized
@@ -512,6 +585,7 @@ DELETE {{apiUrl}}{{apiControllerPrefix}}/PublishScheduledJob
 Content-Type: application/json
 
 {
+  "createRequestId": "{{$guid}}",
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
@@ -523,6 +597,7 @@ Content-Type: application/json
 Authorization: Bearer {{backofficeAdminAccessToken}}
 
 {
+  "createRequestId": "{{$guid}}",
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
@@ -534,6 +609,7 @@ Content-Type: application/json
 Authorization: Bearer {{tenantAdmin01AccessToken}}
 
 {
+  "createRequestId": "{{$guid}}",
   "scheduledJobId": "{{scheduledJobId}}"
 }
 
@@ -545,6 +621,7 @@ Content-Type: application/json
 Authorization: Bearer {{tenantAdmin02AccessToken}}
 
 {
+  "createRequestId": "{{$guid}}",
   "scheduledJobId": "{{scheduledJobId}}"
 }
 

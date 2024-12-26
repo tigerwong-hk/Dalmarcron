@@ -20,12 +20,14 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
     private readonly IMapper _mapper;
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
+    private readonly IJobPublishedTransactionDataService _jobPublishedTransactionDataService;
     private readonly IAwsLambdaService _awsLambdaService;
 
     public DalmarcronSchedulerQueryService(
         IMapper mapper,
         IOptions<SchedulerOptions> schedulerOptions,
         IScheduledJobDataService scheduledJobDataService,
+        IJobPublishedTransactionDataService jobPublishedTransactionDataService,
         IAwsLambdaService awsLambdaService) : base(mapper)
     {
         _mapper = Guard.NotNull(mapper, nameof(mapper));
@@ -34,8 +36,33 @@ public class DalmarcronSchedulerQueryService : ApplicationQueryServiceBase, IDal
         _schedulerOptions.Validate();
 
         _scheduledJobDataService = Guard.NotNull(scheduledJobDataService, nameof(scheduledJobDataService));
+        _jobPublishedTransactionDataService = Guard.NotNull(jobPublishedTransactionDataService, nameof(jobPublishedTransactionDataService));
+
         _awsLambdaService = Guard.NotNull(awsLambdaService, nameof(awsLambdaService));
     }
+
+    #region JobPublishedTransaction
+    public async Task<Result<JobPublishedTransactionDetailOutputDto, ErrorDetail>> GetJobPublishedTransactionDetailAsync(GetJobPublishedTransactionDetailInputDto inputDto, CancellationToken cancellationToken = default)
+    {
+        JobPublishedTransaction? jobPublishedTransaction = await _jobPublishedTransactionDataService.GetJobPublishedTransactionDetailAsync(inputDto.JobPublishedTransactionId, cancellationToken);
+        if (jobPublishedTransaction == null)
+        {
+            return Error<JobPublishedTransactionDetailOutputDto>(ErrorTypes.ResourceNotFoundFor, "JobPublishedTransaction", inputDto.JobPublishedTransactionId);
+        }
+
+        JobPublishedTransactionDetailOutputDto output = _mapper.Map<JobPublishedTransactionDetailOutputDto>(jobPublishedTransaction);
+
+        return Ok(output);
+    }
+
+    public async Task<Result<ResponsePagination<JobPublishedTransactionOutputDto>, ErrorDetail>> GetJobPublishedTransactionListAsync(GetJobPublishedTransactionListInputDto inputDto, CancellationToken cancellationToken = default)
+    {
+        ResponsePagination<JobPublishedTransaction> jobPublishedTransactionList = await _jobPublishedTransactionDataService.GetJobPublishedTransactionListAsync(inputDto, cancellationToken);
+        IEnumerable<JobPublishedTransactionOutputDto> output = _mapper.Map<IEnumerable<JobPublishedTransactionOutputDto>>(jobPublishedTransactionList.Data);
+
+        return Ok(new ResponsePagination<JobPublishedTransactionOutputDto>(output, jobPublishedTransactionList.FilteredCount, jobPublishedTransactionList.PageNumber, jobPublishedTransactionList.PageSize));
+    }
+    #endregion JobPublishedTransaction
 
     #region ScheduledJob
     public async Task<Result<PublishedJobDetailOutputDto, ErrorDetail>> GetPublishedJobDetailAsync(GetPublishedJobDetailInputDto inputDto, CancellationToken cancellationToken = default)

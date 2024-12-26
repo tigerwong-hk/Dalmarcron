@@ -93,6 +93,43 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                     table.PrimaryKey("PK_ScheduledJobs", x => x.ScheduledJobId);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "JobPublishedTransactions",
+                columns: table => new
+                {
+                    JobPublishedTransactionId = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    ApiMethod = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    ApiType = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    ApiUrl = table.Column<string>(type: "text", nullable: false),
+                    CronExpression = table.Column<string>(type: "text", nullable: false),
+                    JobName = table.Column<string>(type: "text", nullable: false),
+                    LambdaFunctionArn = table.Column<string>(type: "text", nullable: false),
+                    LambdaPermissionStatement = table.Column<string>(type: "text", nullable: false),
+                    LambdaTriggerArn = table.Column<string>(type: "text", nullable: false),
+                    ApiHeaders = table.Column<string>(type: "text", nullable: true),
+                    ApiIdempotencyKey = table.Column<string>(type: "text", nullable: true),
+                    ApiJsonBody = table.Column<string>(type: "text", nullable: true),
+                    Oauth2BaseUri = table.Column<string>(type: "text", nullable: true),
+                    Oauth2ClientId = table.Column<string>(type: "text", nullable: true),
+                    Oauth2ClientScopes = table.Column<List<string>>(type: "jsonb", nullable: true),
+                    Oauth2ClientSecret = table.Column<string>(type: "text", nullable: true),
+                    ScheduledJobId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<string>(type: "text", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now() at time zone 'utc'"),
+                    CreateRequestId = table.Column<string>(type: "text", nullable: false),
+                    CreatorId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JobPublishedTransactions", x => x.JobPublishedTransactionId);
+                    table.ForeignKey(
+                        name: "FK_JobPublishedTransactions_ScheduledJobs_ScheduledJobId",
+                        column: x => x.ScheduledJobId,
+                        principalTable: "ScheduledJobs",
+                        principalColumn: "ScheduledJobId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ApiLogs_ActionName",
                 table: "ApiLogs",
@@ -175,6 +212,32 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_JobPublishedTransactions_ClientId",
+                table: "JobPublishedTransactions",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPublishedTransactions_CreatedOn",
+                table: "JobPublishedTransactions",
+                column: "CreatedOn");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPublishedTransactions_CreateRequestId_ClientId",
+                table: "JobPublishedTransactions",
+                columns: new[] { "CreateRequestId", "ClientId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPublishedTransactions_CreatorId",
+                table: "JobPublishedTransactions",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobPublishedTransactions_ScheduledJobId",
+                table: "JobPublishedTransactions",
+                column: "ScheduledJobId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ScheduledJobs_ClientId",
                 table: "ScheduledJobs",
                 column: "ClientId");
@@ -221,6 +284,9 @@ namespace Dalmarcron.Scheduler.WebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "AuditLogs");
+
+            migrationBuilder.DropTable(
+                name: "JobPublishedTransactions");
 
             migrationBuilder.DropTable(
                 name: "ScheduledJobs");

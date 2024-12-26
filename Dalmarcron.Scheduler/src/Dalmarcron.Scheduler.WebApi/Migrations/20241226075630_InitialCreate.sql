@@ -66,6 +66,32 @@ CREATE TABLE "ScheduledJobs" (
     CONSTRAINT "PK_ScheduledJobs" PRIMARY KEY ("ScheduledJobId")
 );
 
+CREATE TABLE "JobPublishedTransactions" (
+    "JobPublishedTransactionId" uuid NOT NULL DEFAULT (gen_random_uuid()),
+    "ApiMethod" character varying(20) NOT NULL,
+    "ApiType" character varying(20) NOT NULL,
+    "ApiUrl" text NOT NULL,
+    "CronExpression" text NOT NULL,
+    "JobName" text NOT NULL,
+    "LambdaFunctionArn" text NOT NULL,
+    "LambdaPermissionStatement" text NOT NULL,
+    "LambdaTriggerArn" text NOT NULL,
+    "ApiHeaders" text,
+    "ApiIdempotencyKey" text,
+    "ApiJsonBody" text,
+    "Oauth2BaseUri" text,
+    "Oauth2ClientId" text,
+    "Oauth2ClientScopes" jsonb,
+    "Oauth2ClientSecret" text,
+    "ScheduledJobId" uuid NOT NULL,
+    "ClientId" text NOT NULL,
+    "CreatedOn" timestamp with time zone NOT NULL DEFAULT (now() at time zone 'utc'),
+    "CreateRequestId" text NOT NULL,
+    "CreatorId" text NOT NULL,
+    CONSTRAINT "PK_JobPublishedTransactions" PRIMARY KEY ("JobPublishedTransactionId"),
+    CONSTRAINT "FK_JobPublishedTransactions_ScheduledJobs_ScheduledJobId" FOREIGN KEY ("ScheduledJobId") REFERENCES "ScheduledJobs" ("ScheduledJobId") ON DELETE CASCADE
+);
+
 CREATE INDEX "IX_ApiLogs_ActionName" ON "ApiLogs" ("ActionName");
 
 CREATE INDEX "IX_ApiLogs_CreatedOn" ON "ApiLogs" ("CreatedOn");
@@ -98,6 +124,16 @@ CREATE INDEX "IX_AuditLogs_TraceId" ON "AuditLogs" ("TraceId");
 
 CREATE INDEX "IX_AuditLogs_UserId" ON "AuditLogs" ("UserId");
 
+CREATE INDEX "IX_JobPublishedTransactions_ClientId" ON "JobPublishedTransactions" ("ClientId");
+
+CREATE INDEX "IX_JobPublishedTransactions_CreatedOn" ON "JobPublishedTransactions" ("CreatedOn");
+
+CREATE UNIQUE INDEX "IX_JobPublishedTransactions_CreateRequestId_ClientId" ON "JobPublishedTransactions" ("CreateRequestId", "ClientId");
+
+CREATE INDEX "IX_JobPublishedTransactions_CreatorId" ON "JobPublishedTransactions" ("CreatorId");
+
+CREATE INDEX "IX_JobPublishedTransactions_ScheduledJobId" ON "JobPublishedTransactions" ("ScheduledJobId");
+
 CREATE INDEX "IX_ScheduledJobs_ClientId" ON "ScheduledJobs" ("ClientId");
 
 CREATE INDEX "IX_ScheduledJobs_CreatedOn" ON "ScheduledJobs" ("CreatedOn");
@@ -113,7 +149,7 @@ CREATE INDEX "IX_ScheduledJobs_ModifiedOn" ON "ScheduledJobs" ("ModifiedOn");
 CREATE INDEX "IX_ScheduledJobs_ModifierId" ON "ScheduledJobs" ("ModifierId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20241217132452_InitialCreate', '8.0.11');
+VALUES ('20241226075630_InitialCreate', '8.0.11');
 
 COMMIT;
 

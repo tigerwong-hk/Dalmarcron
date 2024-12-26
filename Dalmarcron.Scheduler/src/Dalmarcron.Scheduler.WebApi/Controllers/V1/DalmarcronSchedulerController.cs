@@ -56,6 +56,26 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
     [HttpGet]
+    public async Task<ActionResult> GetJobPublishedTransactionDetailAsync([FromQuery] GetJobPublishedTransactionDetailInputDto inputDto)
+    {
+        Result<JobPublishedTransactionDetailOutputDto, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetJobPublishedTransactionDetailAsync(inputDto);
+
+        return ApiResponse(result, _jsonSerializerOptions);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpGet]
+    public async Task<ActionResult> GetJobPublishedTransactionListAsync([FromQuery] GetJobPublishedTransactionListInputDto inputDto)
+    {
+        Result<ResponsePagination<JobPublishedTransactionOutputDto>, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetJobPublishedTransactionListAsync(inputDto);
+
+        return ApiResponse(result, _jsonSerializerOptions);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpGet]
     public async Task<ActionResult> GetPublishedJobDetailAsync([FromQuery] GetPublishedJobDetailInputDto inputDto)
     {
         Result<PublishedJobDetailOutputDto, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetPublishedJobDetailAsync(inputDto);
