@@ -20,6 +20,8 @@ namespace Dalmarcron.Scheduler.Application.Services.ApplicationServices;
 
 public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, IDalmarcronSchedulerCommandService
 {
+    public const long UnpublishWaitPublishTicks = 300000000;
+
     private readonly IMapper _mapper;
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
@@ -113,6 +115,12 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         if (scheduledJob.PublicationState != PublicationState.Unpublished)
         {
             return Error<Guid>(ErrorTypes.BadRequestDetails, $"ScheduledJob must be unpublished: {inputDto.ScheduledJobId}");
+        }
+
+        DateTime latestUnpublishedTransactionDateTime = await _jobUnpublishedTransactionDataService.GetLatestJobUnpublishedTransactionDateTimeAsync(inputDto.ScheduledJobId, cancellationToken);
+        if (latestUnpublishedTransactionDateTime != default && (DateTime.UtcNow.Ticks - latestUnpublishedTransactionDateTime.Ticks) < UnpublishWaitPublishTicks)
+        {
+            return Error<Guid>(ErrorTypes.BadRequestDetails, $"After unpublish, please wait for at least {UnpublishWaitPublishTicks / 10000000} seconds before publishing: {inputDto.ScheduledJobId}");
         }
 
         scheduledJob.PublicationState = PublicationState.PendingPublish;

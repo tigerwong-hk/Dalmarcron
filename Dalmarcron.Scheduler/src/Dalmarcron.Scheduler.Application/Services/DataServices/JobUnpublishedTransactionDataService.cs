@@ -35,6 +35,15 @@ public class JobUnpublishedTransactionDataService(DalmarcronSchedulerDbContext d
         return new ResponsePagination<JobUnpublishedTransaction>(data, filteredCount, inputDto.PageNumber, inputDto.PageSize);
     }
 
+    public async Task<DateTime> GetLatestJobUnpublishedTransactionDateTimeAsync(Guid scheduledJobId, CancellationToken cancellationToken = default)
+    {
+        return await DbContext.JobUnpublishedTransactions
+            .Where(x => x.ScheduledJobId == scheduledJobId)
+            .Select(x => x.CreatedOn)
+            .OrderByDescending(x => x)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     protected static Expression<Func<JobUnpublishedTransaction, bool>> GetJobUnpublishedTransactionListFilter(GetJobUnpublishedTransactionListInputDto inputDto)
     {
         return inputDto switch

@@ -10,4 +10,6 @@ public interface IJobUnpublishedTransactionDataService : IReadOnlyDataServiceBas
     Task<JobUnpublishedTransaction?> GetJobUnpublishedTransactionDetailAsync(Guid jobUnpublishedTransactionId, CancellationToken cancellationToken = default);
 
     Task<ResponsePagination<JobUnpublishedTransaction>> GetJobUnpublishedTransactionListAsync(GetJobUnpublishedTransactionListInputDto inputDto, CancellationToken cancellationToken = default);
+
+    Task<DateTime> GetLatestJobUnpublishedTransactionDateTimeAsync(Guid scheduledJobId, CancellationToken cancellationToken = default);
 }
