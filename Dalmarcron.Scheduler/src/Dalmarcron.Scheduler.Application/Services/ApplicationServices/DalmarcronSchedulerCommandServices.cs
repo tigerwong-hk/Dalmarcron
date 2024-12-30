@@ -24,6 +24,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
     private readonly SchedulerOptions _schedulerOptions;
     private readonly IScheduledJobDataService _scheduledJobDataService;
     private readonly IJobPublishedTransactionDataService _jobPublishedTransactionDataService;
+    private readonly IJobUnpublishedTransactionDataService _jobUnpublishedTransactionDataService;
     private readonly IAwsCloudWatchEventsService _awsCloudWatchEventsService;
     private readonly IAwsLambdaService _awsLambdaService;
     private readonly IAwsSystemsManagerService _awsSystemsManagerService;
@@ -34,6 +35,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
         IOptions<SchedulerOptions> schedulerOptions,
         IScheduledJobDataService scheduledJobDataService,
         IJobPublishedTransactionDataService jobPublishedTransactionDataService,
+        IJobUnpublishedTransactionDataService jobUnpublishedTransactionDataService,
         IAwsCloudWatchEventsService awsCloudWatchEventsService,
         IAwsLambdaService awsLambdaService,
         IAwsSystemsManagerService awsSystemsManagerService,
@@ -46,6 +48,7 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
 
         _scheduledJobDataService = Guard.NotNull(scheduledJobDataService, nameof(scheduledJobDataService));
         _jobPublishedTransactionDataService = Guard.NotNull(jobPublishedTransactionDataService, nameof(jobPublishedTransactionDataService));
+        _jobUnpublishedTransactionDataService = Guard.NotNull(jobUnpublishedTransactionDataService, nameof(jobUnpublishedTransactionDataService));
 
         _awsCloudWatchEventsService = Guard.NotNull(awsCloudWatchEventsService, nameof(awsCloudWatchEventsService));
         _awsLambdaService = Guard.NotNull(awsLambdaService, nameof(awsLambdaService));
@@ -391,9 +394,15 @@ public class DalmarcronSchedulerCommandService : ApplicationCommandServiceBase, 
             return Error<Guid>(ErrorTypes.ServerError);
         }
 
+        JobUnpublishedTransaction jobUnpublishedTransaction = _mapper.Map<JobUnpublishedTransaction>(
+            scheduledJob,
+            opts => opts.Items[MapperItemKeys.CreateRequestId] = inputDto.CreateRequestId
+        );
+        _ = await _jobUnpublishedTransactionDataService.CreateAsync(jobUnpublishedTransaction, auditDetail, cancellationToken);
+
         scheduledJob.PublicationState = PublicationState.Unpublished;
         _ = _scheduledJobDataService.Update(scheduledJob, auditDetail);
-        _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken);
+        _ = await _scheduledJobDataService.SaveChangesAsync(cancellationToken); // same DbContext instance will be injected as DbContext has service lifetime set to scoped
 
         return Ok(scheduledJob.ScheduledJobId);
     }

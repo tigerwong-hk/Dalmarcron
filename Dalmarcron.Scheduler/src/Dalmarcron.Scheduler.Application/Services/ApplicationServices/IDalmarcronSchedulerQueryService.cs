@@ -11,6 +11,10 @@ public interface IDalmarcronSchedulerQueryService
 
     Task<Result<ResponsePagination<JobPublishedTransactionOutputDto>, ErrorDetail>> GetJobPublishedTransactionListAsync(GetJobPublishedTransactionListInputDto inputDto, CancellationToken cancellationToken = default);
 
+    Task<Result<JobUnpublishedTransactionDetailOutputDto, ErrorDetail>> GetJobUnpublishedTransactionDetailAsync(GetJobUnpublishedTransactionDetailInputDto inputDto, CancellationToken cancellationToken = default);
+
+    Task<Result<ResponsePagination<JobUnpublishedTransactionOutputDto>, ErrorDetail>> GetJobUnpublishedTransactionListAsync(GetJobUnpublishedTransactionListInputDto inputDto, CancellationToken cancellationToken = default);
+
     Task<Result<PublishedJobDetailOutputDto, ErrorDetail>> GetPublishedJobDetailAsync(GetPublishedJobDetailInputDto inputDto, CancellationToken cancellationToken = default);
 
     Task<Result<ScheduledJobDetailOutputDto, ErrorDetail>> GetScheduledJobDetailAsync(GetScheduledJobDetailInputDto inputDto, CancellationToken cancellationToken = default);

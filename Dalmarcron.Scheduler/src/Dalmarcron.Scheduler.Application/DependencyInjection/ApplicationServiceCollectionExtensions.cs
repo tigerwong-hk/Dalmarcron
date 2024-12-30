@@ -21,6 +21,7 @@ public static class ApplicationServiceCollectionExtensions
 
         _ = services.AddScoped<IScheduledJobDataService, ScheduledJobDataService>();
         _ = services.AddScoped<IJobPublishedTransactionDataService, JobPublishedTransactionDataService>();
+        _ = services.AddScoped<IJobUnpublishedTransactionDataService, JobUnpublishedTransactionDataService>();
 
         _ = services.AddScoped<IDalmarcronSchedulerQueryService, DalmarcronSchedulerQueryService>();
         _ = services.AddScoped<IDalmarcronSchedulerCommandService, DalmarcronSchedulerCommandService>();

@@ -119,12 +119,20 @@ public class MapperConfigurations : MapperConfigurationBase
             .ForMember(d => d.LambdaTriggerArn, opt => opt.MapFrom((_, _, _, context) =>
                 (string)context.Items[MapperItemKeys.LambdaTriggerArn]
             ));
+
+        _ = config.CreateMap<ScheduledJob, JobUnpublishedTransaction>()
+            .ForMember(d => d.CreateRequestId, opt => opt.MapFrom((_, _, _, context) =>
+                (string)context.Items[MapperItemKeys.CreateRequestId]
+            ));
     }
 
     protected override void EntityToDtoMappingConfigure(IMapperConfigurationExpression config)
     {
         _ = config.CreateMap<JobPublishedTransaction, JobPublishedTransactionOutputDto>();
         _ = config.CreateMap<JobPublishedTransaction, JobPublishedTransactionDetailOutputDto>();
+
+        _ = config.CreateMap<JobUnpublishedTransaction, JobUnpublishedTransactionOutputDto>();
+        _ = config.CreateMap<JobUnpublishedTransaction, JobUnpublishedTransactionDetailOutputDto>();
 
         _ = config.CreateMap<ScheduledJob, PublishedJobDetailOutputDto>()
             .ForMember(d => d.Function, opt => opt.MapFrom((_, _, _, context) =>

@@ -17,6 +17,7 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
     public DbSet<ApiLog> ApiLogs { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
     public DbSet<JobPublishedTransaction> JobPublishedTransactions { get; set; } = null!;
+    public DbSet<JobUnpublishedTransaction> JobUnpublishedTransactions { get; set; } = null!;
     public DbSet<ScheduledJob> ScheduledJobs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,6 +56,21 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
             .HasConversion(ApiMethodConverter)
             .HasMaxLength(20);
         _ = modelBuilder.Entity<JobPublishedTransaction>()
+            .Property(e => e.ApiType)
+            .HasConversion(ApiTypeConverter)
+            .HasMaxLength(20);
+
+        base.OnModelCreating(modelBuilder);
+
+        _ = modelBuilder.BuildReadOnlyEntity<JobUnpublishedTransaction>();
+        _ = modelBuilder.Entity<JobUnpublishedTransaction>()
+            .Property(e => e.JobUnpublishedTransactionId)
+            .HasDefaultValueSql(ModelBuilderExtensions.DefaultGuidValueSql);
+        _ = modelBuilder.Entity<JobUnpublishedTransaction>()
+            .Property(e => e.ApiMethod)
+            .HasConversion(ApiMethodConverter)
+            .HasMaxLength(20);
+        _ = modelBuilder.Entity<JobUnpublishedTransaction>()
             .Property(e => e.ApiType)
             .HasConversion(ApiTypeConverter)
             .HasMaxLength(20);

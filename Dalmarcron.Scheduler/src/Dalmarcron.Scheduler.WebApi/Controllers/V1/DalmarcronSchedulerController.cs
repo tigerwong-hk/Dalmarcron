@@ -76,6 +76,26 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
     [HttpGet]
+    public async Task<ActionResult> GetJobUnpublishedTransactionDetailAsync([FromQuery] GetJobUnpublishedTransactionDetailInputDto inputDto)
+    {
+        Result<JobUnpublishedTransactionDetailOutputDto, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetJobUnpublishedTransactionDetailAsync(inputDto);
+
+        return ApiResponse(result, _jsonSerializerOptions);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpGet]
+    public async Task<ActionResult> GetJobUnpublishedTransactionListAsync([FromQuery] GetJobUnpublishedTransactionListInputDto inputDto)
+    {
+        Result<ResponsePagination<JobUnpublishedTransactionOutputDto>, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetJobUnpublishedTransactionListAsync(inputDto);
+
+        return ApiResponse(result, _jsonSerializerOptions);
+    }
+
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
+    [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
+    [HttpGet]
     public async Task<ActionResult> GetPublishedJobDetailAsync([FromQuery] GetPublishedJobDetailInputDto inputDto)
     {
         Result<PublishedJobDetailOutputDto, ErrorDetail> result = await _dalmarcronSchedulerQueryService.GetPublishedJobDetailAsync(inputDto);
@@ -115,7 +135,7 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
 
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
-    [HttpDelete]
+    [HttpPost]
     public async Task<ActionResult> PublishScheduledJobAsync([FromBody] PublishScheduledJobInputDto inputDto)
     {
         AuditDetail auditDetail = CreateAuditDetail();
@@ -126,7 +146,7 @@ public class DalmarcronSchedulerController(IDalmarcronSchedulerQueryService dalm
 
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminScopes))]
     [Authorize(Policy = nameof(AwsCognitoAuthorizationOptions.BackofficeAdminGroups))]
-    [HttpDelete]
+    [HttpPost]
     public async Task<ActionResult> UnpublishScheduledJobAsync([FromBody] UnpublishScheduledJobInputDto inputDto)
     {
         AuditDetail auditDetail = CreateAuditDetail();
