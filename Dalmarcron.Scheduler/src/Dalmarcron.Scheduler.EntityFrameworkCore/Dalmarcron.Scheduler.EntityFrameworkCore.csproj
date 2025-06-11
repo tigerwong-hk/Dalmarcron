@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Audit.EntityFramework.Core" Version="27.2.0" />
-    <PackageReference Include="Dalmarkit.EntityFrameworkCore" Version="0.3.6" />
+    <PackageReference Include="Dalmarkit.EntityFrameworkCore" Version="0.3.8-alpha.27" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

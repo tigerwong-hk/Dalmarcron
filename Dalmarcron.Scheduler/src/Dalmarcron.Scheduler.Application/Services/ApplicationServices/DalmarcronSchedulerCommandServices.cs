@@ -1,12 +1,13 @@
 using AutoMapper;
 using Dalmarcron.Scheduler.Application.Mappers;
 using Dalmarcron.Scheduler.Application.Options;
-using Dalmarcron.Scheduler.Application.Services.AwsServices;
 using Dalmarcron.Scheduler.Application.Services.DataServices;
 using Dalmarcron.Scheduler.Core.Constants;
 using Dalmarcron.Scheduler.Core.Dtos.Inputs;
 using Dalmarcron.Scheduler.Core.Dtos.Outputs;
 using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
+using Dalmarkit.Cloud.Aws.Constants;
+using Dalmarkit.Cloud.Aws.Services;
 using Dalmarkit.Common.Api.Responses;
 using Dalmarkit.Common.AuditTrail;
 using Dalmarkit.Common.Errors;

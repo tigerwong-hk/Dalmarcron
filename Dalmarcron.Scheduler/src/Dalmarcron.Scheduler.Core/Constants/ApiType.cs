@@ -1,4 +1,5 @@
 namespace Dalmarcron.Scheduler.Core.Constants;
+
 public enum ApiType
 {
     FETCH = 1000,

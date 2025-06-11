@@ -5,11 +5,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.CloudWatchEvents" Version="3.7.400.67" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
-    <PackageReference Include="AWSSDK.Lambda" Version="3.7.411.10" />
-    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.403.7" />
-    <PackageReference Include="Dalmarkit.Cloud" Version="0.3.6" />
+    <PackageReference Include="Dalmarkit.Cloud" Version="0.3.8-alpha.27" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

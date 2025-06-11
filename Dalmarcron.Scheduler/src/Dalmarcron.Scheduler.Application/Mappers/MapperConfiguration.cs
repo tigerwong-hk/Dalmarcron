@@ -1,12 +1,11 @@
-using Amazon.Lambda.Model;
 using AutoMapper;
-using Dalmarcron.Scheduler.Application.Services.AwsServices;
-using Dalmarcron.Scheduler.Core.Cryptography;
 using Dalmarcron.Scheduler.Core.Dtos.Inputs;
 using Dalmarcron.Scheduler.Core.Dtos.Outputs;
 using Dalmarcron.Scheduler.EntityFrameworkCore.Entities;
+using Dalmarkit.Cloud.Aws.Mappers;
+using Dalmarkit.Common.Cryptography;
+using Dalmarkit.Common.Services;
 using Dalmarkit.EntityFrameworkCore.Mappers;
-using System.Globalization;
 using System.Text.Json;
 
 namespace Dalmarcron.Scheduler.Application.Mappers;
@@ -15,13 +14,7 @@ public class MapperConfigurations : MapperConfigurationBase
 {
     protected override void DtoToDtoMappingConfigure(IMapperConfigurationExpression config)
     {
-        _ = config.CreateMap<FunctionConfiguration, FunctionConfig>()
-            .ForMember(d => d.EnvironmentVariables, opt => opt.MapFrom(src => src.Environment.Variables))
-            .ForMember(d => d.MemoryMbSize, opt => opt.MapFrom(src => src.MemorySize))
-            .ForMember(d => d.Runtime, opt => opt.MapFrom(src => src.Runtime.ToString(CultureInfo.InvariantCulture)))
-            .ForMember(d => d.TimeoutSeconds, opt => opt.MapFrom(src => src.Timeout));
-
-        _ = config.CreateMap<FunctionConfig, FunctionConfigOutputDto>();
+        FunctionConfigMapper.CreateMap(config);
     }
 
     protected override void DtoToEntityMappingConfigure(IMapperConfigurationExpression config)

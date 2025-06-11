@@ -4,8 +4,8 @@ using Amazon.Lambda;
 using Amazon.SimpleSystemsManagement;
 using Dalmarcron.Scheduler.Application.Mappers;
 using Dalmarcron.Scheduler.Application.Services.ApplicationServices;
-using Dalmarcron.Scheduler.Application.Services.AwsServices;
 using Dalmarcron.Scheduler.Application.Services.DataServices;
+using Dalmarkit.Cloud.Aws.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
