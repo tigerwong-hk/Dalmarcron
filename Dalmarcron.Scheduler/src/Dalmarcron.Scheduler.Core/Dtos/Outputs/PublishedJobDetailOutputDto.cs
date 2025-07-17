@@ -1,3 +1,5 @@
+using Dalmarkit.Cloud.Aws.Dtos.Outputs;
+
 namespace Dalmarcron.Scheduler.Core.Dtos.Outputs;
 
 public class PublishedJobDetailOutputDto : ScheduledJobDetailOutputDto

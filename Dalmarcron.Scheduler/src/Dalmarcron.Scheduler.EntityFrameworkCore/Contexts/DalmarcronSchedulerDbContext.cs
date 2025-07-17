@@ -60,8 +60,6 @@ public class DalmarcronSchedulerDbContext(DbContextOptions options) : AuditDbCon
             .HasConversion(ApiTypeConverter)
             .HasMaxLength(20);
 
-        base.OnModelCreating(modelBuilder);
-
         _ = modelBuilder.BuildReadOnlyEntity<JobUnpublishedTransaction>();
         _ = modelBuilder.Entity<JobUnpublishedTransaction>()
             .Property(e => e.JobUnpublishedTransactionId)

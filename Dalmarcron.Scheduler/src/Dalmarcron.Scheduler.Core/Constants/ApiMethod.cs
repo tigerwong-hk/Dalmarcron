@@ -1,4 +1,5 @@
 namespace Dalmarcron.Scheduler.Core.Constants;
+
 public enum ApiMethod
 {
     GET = 1000,

@@ -1,4 +1,4 @@
-using Dalmarcron.Scheduler.Core.Constants;
+using Dalmarkit.Cloud.Aws.Constants;
 using Dalmarkit.Common.Validation;
 using System.Text.RegularExpressions;
 
@@ -42,27 +42,27 @@ public class SchedulerOptions
         _ = Guard.NotNullOrWhiteSpace(SsmParametersPathPrefix, nameof(SsmParametersPathPrefix));
         _ = Guard.NotNullOrWhiteSpace(SymmetricEncryptionSecretKey, nameof(SymmetricEncryptionSecretKey));
 
-        if (!Regex.IsMatch(LambdaArchitecture!, Core.Constants.LambdaArchitecture.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Core.Constants.LambdaArchitecture.RegexTimeoutIntervalMsec)))
+        if (!Regex.IsMatch(LambdaArchitecture!, Dalmarkit.Cloud.Aws.Constants.LambdaArchitecture.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Dalmarkit.Cloud.Aws.Constants.LambdaArchitecture.RegexTimeoutIntervalMsec)))
         {
             throw new ArgumentException("Invalid", nameof(LambdaArchitecture));
         }
 
-        if (LambdaHandler!.Length > Core.Constants.LambdaHandler.MaxLength)
+        if (LambdaHandler!.Length > Dalmarkit.Cloud.Aws.Constants.LambdaHandler.MaxLength)
         {
-            throw new ArgumentOutOfRangeException(nameof(LambdaHandler), $"Length exceeds {Core.Constants.LambdaHandler.MaxLength}");
+            throw new ArgumentOutOfRangeException(nameof(LambdaHandler), $"Length exceeds {Dalmarkit.Cloud.Aws.Constants.LambdaHandler.MaxLength}");
         }
 
-        if (!Regex.IsMatch(LambdaHandler, Core.Constants.LambdaHandler.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Core.Constants.LambdaHandler.RegexTimeoutIntervalMsec)))
+        if (!Regex.IsMatch(LambdaHandler, Dalmarkit.Cloud.Aws.Constants.LambdaHandler.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Dalmarkit.Cloud.Aws.Constants.LambdaHandler.RegexTimeoutIntervalMsec)))
         {
             throw new ArgumentException("Invalid", nameof(LambdaHandler));
         }
 
-        if (LambdaMemorySizeMb is < Core.Constants.LambdaMemorySizeMb.Min or > Core.Constants.LambdaMemorySizeMb.Max)
+        if (LambdaMemorySizeMb is < Dalmarkit.Cloud.Aws.Constants.LambdaMemorySizeMb.Min or > Dalmarkit.Cloud.Aws.Constants.LambdaMemorySizeMb.Max)
         {
-            throw new ArgumentOutOfRangeException(nameof(LambdaMemorySizeMb), $"Must be between {Core.Constants.LambdaMemorySizeMb.Min} and {Core.Constants.LambdaMemorySizeMb.Max} inclusive");
+            throw new ArgumentOutOfRangeException(nameof(LambdaMemorySizeMb), $"Must be between {Dalmarkit.Cloud.Aws.Constants.LambdaMemorySizeMb.Min} and {Dalmarkit.Cloud.Aws.Constants.LambdaMemorySizeMb.Max} inclusive");
         }
 
-        if (!Regex.IsMatch(LambdaRuntime!, Core.Constants.LambdaRuntime.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Core.Constants.LambdaRuntime.RegexTimeoutIntervalMsec)))
+        if (!Regex.IsMatch(LambdaRuntime!, Dalmarkit.Cloud.Aws.Constants.LambdaRuntime.RegexPattern, RegexOptions.None, TimeSpan.FromMilliseconds(Dalmarkit.Cloud.Aws.Constants.LambdaRuntime.RegexTimeoutIntervalMsec)))
         {
             throw new ArgumentException("Invalid", nameof(LambdaRuntime));
         }
@@ -82,9 +82,9 @@ public class SchedulerOptions
             throw new ArgumentOutOfRangeException(nameof(LambdaS3Key), $"Length exceeds {S3Key.MaxLength}");
         }
 
-        if (LambdaTimeoutSeconds is < Core.Constants.LambdaTimeoutSeconds.Min or > Core.Constants.LambdaTimeoutSeconds.Max)
+        if (LambdaTimeoutSeconds is < Dalmarkit.Cloud.Aws.Constants.LambdaTimeoutSeconds.Min or > Dalmarkit.Cloud.Aws.Constants.LambdaTimeoutSeconds.Max)
         {
-            throw new ArgumentOutOfRangeException(nameof(LambdaTimeoutSeconds), $"Must be between {Core.Constants.LambdaTimeoutSeconds.Min} and {Core.Constants.LambdaTimeoutSeconds.Max} inclusive");
+            throw new ArgumentOutOfRangeException(nameof(LambdaTimeoutSeconds), $"Must be between {Dalmarkit.Cloud.Aws.Constants.LambdaTimeoutSeconds.Min} and {Dalmarkit.Cloud.Aws.Constants.LambdaTimeoutSeconds.Max} inclusive");
         }
     }
 }
